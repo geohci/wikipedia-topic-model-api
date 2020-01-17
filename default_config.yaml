@@ -1,0 +1,20 @@
+# Name of the HTTP cookie that will be used to store session data. The Flask
+# default value is 'session' which is likely to clash with other cookies on
+# tools.wikimedia.org.
+SESSION_COOKIE_NAME: wiki-topic
+
+# URL path for the session cookie. The Flask default is '/' which is not the
+# best idea on Tool Labs where multiple applications with different owners are
+# hosted in the same domain. The value given here will only work if for the
+# my-first-flask-oauth-tool account, so you should override it in your
+# config.yaml if you have forked the tool for use with anohter account.
+SESSION_COOKIE_PATH: /wiki-topic
+
+# Generate https://... links by default
+PREFERRED_URL_SCHEME: https
+
+# Set to false to prevent users from running arbitrary code
+DEBUG: False
+
+# UA to be used by
+# CUSTOM_UA: "wiki-topic (toolforge) -- <your-email-address>"

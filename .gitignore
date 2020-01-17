@@ -1,0 +1,8 @@
+# Byproducts
+*__pycache__
+
+# PyCharm config
+*.idea
+
+# User-config
+config.yaml

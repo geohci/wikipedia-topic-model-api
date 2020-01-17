@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Wikidata-based Topic Results: {{qid}}</title>
+    <style>
+      table {font-family:courier;}
+      td {padding-left: 10px;}
+      .above-threshold {color: black;}
+      .below-threshold {color: silver;}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Wikidata Item: <a href="https://www.wikidata.org/wiki/{{qid}}">{{qid}}</a></h2>
+      <h2>Label: {{name}}</h2>
+      <h2>Topics:</h2>
+      <table>
+       <tr>
+         <th>Topic</th>
+         <th>Score</th>
+       </tr>
+       {% for t,s in topics %}
+         <tr>
+         {% if s >= 0.5 %}
+           <td class="above-threshold">{{t}}</td>
+           <td class="above-threshold">{{s}}</td>
+         {% else %}
+           <td class="below-threshold">{{t}}</td>
+           <td class="below-threshold">{{s}}</td>
+         {% endif %}
+         </tr>
+       {% endfor %}
+      </table>
+      <h2>Claims:</h2>
+      <table>
+        <tr>
+          <th>Property</th>
+          <th>Value</th>
+        </tr>
+        {% for s in claims %}
+        <tr>
+        <td><a href="https://www.wikidata.org/wiki/Property:{{s[0]}}">{{s[0]}}</a></td>
+        {% if s|length > 1 %}
+        <td><a href="https://www.wikidata.org/wiki/{{s[1]}}">{{s[1]}}</a></td>
+        {% else %}
+        <td></td>
+        {% endif %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </body>
+</html>
