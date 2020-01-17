@@ -97,8 +97,8 @@ def validate_api_args():
         qid = request.args['qid'].upper()
         if not validate_qid(qid):
             qid = "Error: poorly formatted 'qid' field. {0} does not match 'Q#...'".format(qid)
-    elif 'en_title' in request.args:
-        qid = get_qid(request.args['en_title'], lang='en')
+    elif 'title' in request.args and 'lang' in request.args:
+        qid = get_qid(request.args['title'], lang=request.args['lang'])
     else:
         qid = "Error: no 'qid' or 'en_title' field provided. Please specify."
 
