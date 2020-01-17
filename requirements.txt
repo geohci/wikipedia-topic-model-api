@@ -1,3 +1,4 @@
 fasttext
 flask
 mwapi
+pyyaml
