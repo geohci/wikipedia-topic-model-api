@@ -6,6 +6,7 @@ import yaml
 
 import fasttext
 from flask import Flask, request, jsonify, render_template
+import flask_cors
 import mwapi
 
 app = Flask(__name__)
@@ -19,6 +20,9 @@ try:
 except IOError:
     # It is ok if there is no local config file
     pass
+
+# Enable CORS for API endpoints
+cors = flask_cors.CORS(app, resources={r'/api/*': {'origins': '*'}})
 
 SESSION = mwapi.Session('https://www.wikidata.org', user_agent=app.config['CUSTOM_UA'])
 FT_MODEL = fasttext.load_model('models/model.bin')
