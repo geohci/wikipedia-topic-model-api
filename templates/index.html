@@ -4,9 +4,7 @@
   <title>Wikidata-based Topic Exploration</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
   <link href="./static/site.css" rel="stylesheet">
 </head>
 <body>
@@ -16,26 +14,52 @@
 </div>
 
 <div class="container">
-  <div class="row justify-content-center">
-    <div class="col-4">
+  <div class="row">
+    <div class="col-9">
       <h3>Some details</h3>
       <p>This experimental API provides topic predictions for Wikipedia articles based on their Wikidata items.</p>
       <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article (<a href="http://wmdeanalytics.wmflabs.org/WD_percentUsageDashboard/">with a Wikidata item</a>).</p>
       <p>Because it relies on Wikidata items, it has little data to go on with sparse Wikidata items.</p>
-      <p>For example: <a href="./api/v1/wikidata/topic?qid=Q72334">Toni Morrison</a></p>
+      <h3>Querying the API</h3>
+      <p>Example: <a href="./api/v1/wikidata/topic?qid=Q72334">Toni Morrison (Q72334)</a></p>
+      <p>Or provide your own Wikidata ID:</p>
+      <form>
+        <div class="form-row align-items-center">
+          <div class="col-sm-4">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">Q</div>
+              </div>
+              <input type="text" class="form-control" id="wikidata-id" placeholder="72334" value="72334">
+            </div>
+          </div>
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary" onclick="queryAPI();">Query API</button>
+          </div>
+        </div>
+      </form>
+
     </div>
   </div>
 </div>
 
 <footer class="footer">
-      <div class="container">
+  <div class="container">
         <span class="text-muted">
           <a href="https://github.com/geohci/wikidata-topic-model-api">Code</a> |
           <a href="https://meta.wikimedia.org/wiki/Research_talk:Characterizing_Wikipedia_Reader_Behaviour/Demographics_and_Wikipedia_use_cases/Work_log/2019-09-11">Meta</a> |
           <a href="https://figshare.com/articles/Wikipedia_Articles_and_Associated_WikiProject_Templates/10248344">Data</a>
         </span>
-      </div>
+  </div>
 </footer>
 
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
+<script type="text/javascript">
+  function queryAPI() {
+    var qid = "Q" + document.getElementById('wikidata-id').value;
+    window.location.assign("./api/v1/wikidata/topic?qid=" + qid);
+}
+</script>
 </body>
 </html>
