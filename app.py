@@ -63,9 +63,12 @@ def get_topics():
             return render_template('wikidata_topics.html',
                                    qid=qid, claims=claims, topics=topics, name=name)
         else:
-            topics = [{'topic':t[0], 'score':t[1]} for t in topics]
-            return jsonify(topics)
-    return jsonify({'Error':qid})
+            result = {'qid': qid,
+                      'name': name,
+                      'results': [{'topic':t[0], 'score':t[1]} for t in topics]
+                      }
+            return jsonify(result)
+    return jsonify({'Error': qid})
 
 
 def get_qid(title, lang, session=None):
