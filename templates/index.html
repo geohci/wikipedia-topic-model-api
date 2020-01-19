@@ -23,14 +23,14 @@
       <h3>Querying the API</h3>
       <p>Example: <a href="./api/v1/wikidata/topic?qid=Q72334">Toni Morrison (Q72334)</a></p>
       <p>Or provide your own Wikidata ID:</p>
-      <form>
+      <form action="#">
         <div class="form-row align-items-center">
           <div class="col-sm-4">
             <div class="input-group">
               <div class="input-group-prepend">
                 <div class="input-group-text">Q</div>
               </div>
-              <input type="text" class="form-control" id="wikidata-id" placeholder="72334" value="72334">
+              <input type="text" class="form-control" id="wikidata-id" placeholder="72334">
             </div>
           </div>
           <div class="col-auto">
@@ -38,6 +38,8 @@
           </div>
         </div>
       </form>
+      <div id="results">
+      </div>
 
     </div>
   </div>
@@ -56,9 +58,26 @@
 <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
 <script type="text/javascript">
+  var render_categories = function(data) {
+        $("#results").empty();
+		// console.log(["rendering", data]);
+		if ("Error" in data) {
+		  $("#results").append("<p><br>" + data["Error"] + "</p>");
+		}
+		else {
+          $("#results").append("<p><br>QID: " + data["qid"] + "<br>Label: " + data["name"] + "</p>");
+          for (var cat in data["results"]) {
+              //console.log(["looping", cat]);
+              $("#results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+          }
+		}
+	}
+
   function queryAPI() {
-    var qid = "Q" + document.getElementById('wikidata-id').value;
-    window.location.assign("./api/v1/wikidata/topic?qid=" + qid);
+    var queryUrl = "https://tools.wmflabs.org/wiki-topic/api/v1/wikidata/topic?threshold=0.15&qid=Q" + document.getElementById('wikidata-id').value;
+    console.log(queryUrl);
+    $.ajax(queryUrl, {success: render_categories.bind(this),
+                      error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
 }
 </script>
 </body>
