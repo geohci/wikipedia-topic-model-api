@@ -46,7 +46,12 @@
           </div>
         </div>
       </form>
-      <div id="results">
+      <div class="row">
+        <div class="col-1"></div>
+        <div class="col-11">
+          <div id="results">
+          </div>
+        </div>
       </div>
 
     </div>
@@ -77,9 +82,14 @@
 		}
 		else {
           $("#results").append("<p><br>QID: " + data["qid"] + "<br>Label: " + data["name"] + "</p>");
-          for (var cat in data["results"]) {
-              //console.log(["looping", cat]);
-              $("#results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+          if (data["results"].length > 0) {
+            for (var cat in data["results"]) {
+                //console.log(["looping", cat]);
+                $("#results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+            }
+          }
+          else {
+            $("#results").append("<li><No confident topics predicted.</li>");
           }
 		}
 	}
