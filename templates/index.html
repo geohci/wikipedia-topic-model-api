@@ -83,6 +83,7 @@
 		else {
           $("#results").append("<p><br>QID: " + data["qid"] + "<br>Label: " + data["name"] + "</p>");
           if (data["results"].length > 0) {
+            $("#results").append("<li>TOPIC (CONFIDENCE)</li>");
             for (var cat in data["results"]) {
                 //console.log(["looping", cat]);
                 $("#results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");

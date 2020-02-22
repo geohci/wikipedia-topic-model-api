@@ -47,12 +47,15 @@ def adjust_topics_based_on_claims(topics, claims):
         for idx in range(len(topics)):
             if topics[idx][0].startswith('Geography'):
                 topics[idx] = (topics[idx][0], max(0, topics[idx][1] - 0.501))
-    # language/literature should not include people (just actual biographies)
-    if 'P31:Q5' in joined_claims:
+    # Culture.Biography.Women should not include men (at 0.5 threshold):
+    if ('P21:Q6581097' in joined_claims or  # male
+            'P21:Q2449503' in joined_claims or  # transgender male
+            'P21:Q44148' in joined_claims or  # male organisms
+            'P21:Q27679766' in joined_claims or  # transmasculine
+            'P21:Q15145778' in joined_claims):  # cisgender male
         for idx in range(len(topics)):
-            if topics[idx][0] == 'Culture.Language_and_literature':
-                topics[idx] = (topics[idx][0], max(0, topics[idx][1] - 0.501))
-        topics = [('Person', 1)] + topics
+            if topics[idx][0] == 'Culture.Biography.Women':
+                topics[idx] = (topics[idx][0], min(0.49, topics[idx][1]))
     topics = sorted(topics, key=lambda tup: tup[1], reverse=True)
     return topics, claims
 
