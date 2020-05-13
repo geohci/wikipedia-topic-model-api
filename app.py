@@ -43,6 +43,7 @@ def index():
 
 @app.route('/api/v1/wikidata/topic', methods=['GET'])
 def get_topics_wd():
+    """Wikidata-based topic modeling endpoint. Makes prediction based on statements associated with Wikidata item."""
     if FT_MODEL_WD is not None:
         qid, threshold, debug, error = validate_api_args_wd()
         if error is not None:
@@ -66,9 +67,10 @@ def get_topics_wd():
 
 @app.route('/api/v1/lang-agnostic-outlinks/topic', methods=['GET'])
 def get_topics_la():
+    """Wikipedia-based topic modeling endpoint. Makes prediction based on outlinks associated with a Wikipedia article."""
     if FT_MODEL_LA is not None:
         lang, page_title, threshold, debug, error = validate_api_args_la()
-        if error:
+        if error is not None:
             return jsonify({'Error': error})
         else:
             outlinks = get_outlinks(page_title, lang)
@@ -87,6 +89,7 @@ def get_topics_la():
         return jsonify({'Error': 'model not available for language-agnostic topic model.'})
 
 def get_predictions(features_str, model, threshold=0.5, debug=False):
+    """Get fastText model predictions for an input feature string."""
     lbls, scores = model.predict(features_str, k=-1)
     results = {l:s for l,s in zip(lbls, scores)}
     if debug:
@@ -107,6 +110,7 @@ def get_predictions(features_str, model, threshold=0.5, debug=False):
     return above_threshold
 
 def get_outlinks(title, lang, limit=1000, session=None):
+    """Gather set of up to `limit` outlinks for an article."""
     if session is None:
         session = mwapi.Session('https://{0}.wikipedia.org'.format(lang), user_agent=app.config['CUSTOM_UA'])
 
@@ -139,6 +143,7 @@ def get_outlinks(title, lang, limit=1000, session=None):
         return None
 
 def get_canonical_page_title(title, lang, session=None):
+    """Resolve redirects / normalization -- used to verify that an input page_title exists"""
     if session is None:
         session = mwapi.Session('https://{0}.wikipedia.org'.format(lang), user_agent=app.config['CUSTOM_UA'])
 
@@ -158,6 +163,7 @@ def get_canonical_page_title(title, lang, session=None):
         return result['query']['pages'][0]['title']
 
 def get_qid(title, lang, session=None):
+    """Get Wikidata item ID for a given Wikipedia article"""
     if session is None:
         session = mwapi.Session('https://{0}.wikipedia.org'.format(lang), user_agent=app.config['CUSTOM_UA'])
 
@@ -179,6 +185,7 @@ def get_qid(title, lang, session=None):
         return "Title does not exist in {0}: {1}".format(lang, title)
 
 def get_wikidata_claims(qid, session, debug=False):
+    """Get list of claims associated with a Wikidata item."""
     # default results
     name = ""
     claims_tuples = []
@@ -226,6 +233,7 @@ def get_wikidata_claims(qid, session, debug=False):
     return name, claims_tuples
 
 def validate_api_args_la():
+    """Validate API arguments for language-agnostic model."""
     error = None
     lang = None
     page_title = None
@@ -256,9 +264,11 @@ def validate_api_args_la():
     return lang, page_title, threshold, debug, error
 
 def validate_qid(qid):
+    """Make sure QID string is expected format."""
     return re.match('^Q[0-9]+$', qid)
 
 def validate_api_args_wd():
+    """Validate API arguments for Wikidata-based model."""
     error = None
     qid = None
     if 'qid' in request.args:
@@ -287,6 +297,7 @@ def validate_api_args_wd():
     return qid, threshold, debug, error
 
 def adjust_topics_based_on_claims(topics, claims):
+    """Make several post-prediction corrections to Wikidata-based model using rules + claims data."""
     joined_claims = [":".join(c) for c in claims]
     properties = [c[0] for c in claims]
     # list / disambiguation pages
