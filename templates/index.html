@@ -183,8 +183,8 @@
 
   function queryLangAgnosticAPI() {
     var queryUrl = "https://wiki-topic.toolforge.org/api/v1/lang-agnostic-outlinks/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-    // console.log(queryUrl);
-    $.ajax(queryUrl, {success: render_categories.bind(this),
+    console.log(queryUrl);
+    $.ajax(queryUrl, {success: render_categories_la.bind(this),
                       error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
   }
 </script>
