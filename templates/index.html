@@ -21,7 +21,7 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container" id="wikidata-model">
   <div class="row">
     <div class="col-9">
       <h2>Wikidata Topic Classification</h2>
@@ -31,7 +31,7 @@
       <h3>Querying the API</h3>
       <p>Example: <a href="./api/v1/wikidata/topic?qid=Q72334">Toni Morrison (Q72334)</a></p>
       <p>Or provide your own Wikidata ID:</p>
-      <form action="#">
+      <form action="#wikidata-model">
         <div class="form-row align-items-center">
           <div class="col-sm-4">
             <div class="input-group">
@@ -66,7 +66,7 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container" id="lang-agnostic-model">
   <div class="row">
     <div class="col-9">
       <h2>Wikipedia Topic Classification</h2>
@@ -78,7 +78,7 @@
       <h3>Querying the API</h3>
       <p>Example: <a href="./api/v1/lang-agnostic-outlinks/topic?lang=en&title=Toni_Morrison">Toni Morrison (enwiki)</a></p>
       <p>Or provide your own Wikipedia language and article title:</p>
-      <form action="#">
+      <form action="#lang-agnostic-model">
         <div class="form-row align-items-center">
           <div class="col-sm-4">
             <div class="input-group">
@@ -139,7 +139,7 @@
         $("#wikidata-results").append("<p><br>" + data["Error"] + "</p>");
       }
       else {
-        $("#wikidata-results").append("<p><br>QID: " + data["qid"] + "<br>Label: " + data["name"] + "</p>");
+        $("#wikidata-results").append('<p><br>QID: <a href="https://wikidata.org/wiki/' + data["qid"] + '">' + data["qid"] + '</a><br>Label: ' + data["name"] + "</p>");
         if (data["results"].length > 0) {
           $("#wikidata-results").append("<li>TOPIC (CONFIDENCE)</li>");
           for (var cat in data["results"]) {

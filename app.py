@@ -242,13 +242,13 @@ def validate_api_args_la():
         lang = request.args['lang']
         page_title = get_canonical_page_title(request.args['title'], lang)
         if page_title is None:
-            error = "no matching article for https://{0}.wikipedia.org/wiki/{1}".format(lang, request.args['title'])
+            error = 'no matching article for <a href="https://{0}.wikipedia.org/wiki/{1}">https://{0}.wikipedia.org/wiki/{1}</a>'.format(lang, request.args['title'])
     elif 'lang' in request.args:
-        error = "missing an article title -- e.g., '2005_World_Series' for https://en.wikipedia.org/wiki/2005_World_Series"
+        error = 'missing an article title -- e.g., "2005_World_Series" for <a href="https://en.wikipedia.org/wiki/2005_World_Series">https://en.wikipedia.org/wiki/2005_World_Series</a>'
     elif 'title' in request.args:
-        error = "missing a language -- e.g., 'en' for English"
+        error = 'missing a language -- e.g., "en" for English'
     else:
-        error = "missing language -- e.g., 'en' for English -- and title -- e.g., '2005_World_Series' for https://en.wikipedia.org/wiki/2005_World_Series"
+        error = 'missing language -- e.g., "en" for English -- and title -- e.g., "2005_World_Series" for <a href="https://en.wikipedia.org/wiki/2005_World_Series">https://en.wikipedia.org/wiki/2005_World_Series</a>'
 
     if 'threshold' in request.args:
         try:
