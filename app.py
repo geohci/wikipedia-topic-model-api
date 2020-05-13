@@ -106,7 +106,7 @@ def get_predictions(features_str, model, threshold=0.5, debug=False):
 
     return above_threshold
 
-def get_outlinks(title, lang, session=None):
+def get_outlinks(title, lang, limit=1000, session=None):
     if session is None:
         session = mwapi.Session('https://{0}.wikipedia.org'.format(lang), user_agent=app.config['CUSTOM_UA'])
 
@@ -132,6 +132,8 @@ def get_outlinks(title, lang, session=None):
                     qid = outlink.get('pageprops', {}).get('wikibase_item', None)
                     if qid is not None:
                         outlink_qids.add(qid)
+            if len(outlink_qids) > limit:
+                break
         return outlink_qids
     except Exception:
         return None
