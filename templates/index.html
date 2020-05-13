@@ -24,8 +24,8 @@
 <div class="container">
   <div class="row">
     <div class="col-9">
-      <h3>Some details</h3>
-      <p>This experimental API provides topic predictions for Wikipedia articles based on their Wikidata items.</p>
+      <h2>Wikidata Topic Classification</h2>
+      <p>This first experimental API provides topic predictions for Wikipedia articles based on their Wikidata items.</p>
       <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article (<a href="http://wmdeanalytics.wmflabs.org/WD_percentUsageDashboard/">with a Wikidata item</a>).</p>
       <p>Because it relies on Wikidata items, it has little data to go on with sparse Wikidata items.</p>
       <h3>Querying the API</h3>
@@ -42,18 +42,76 @@
             </div>
           </div>
           <div class="col-auto">
-            <button type="submit" class="btn btn-primary" onclick="queryAPI();">Query API</button>
+            <button type="submit" class="btn btn-primary" onclick="queryWikidataAPI();">Query API</button>
           </div>
         </div>
       </form>
       <div class="row">
         <div class="col-1"></div>
         <div class="col-11">
-          <div id="results">
+          <div id="wikidata-results">
           </div>
         </div>
       </div>
 
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+      <div class="col-9">
+        <br><hr><br>
+      </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="row">
+    <div class="col-9">
+      <h2>Wikipedia Topic Classification</h2>
+      <p>This second experimental API provides topic predictions for Wikipedia articles based on their links to other Wikipedia articles (outlinks only).</p>
+      <p>It represents these links as Wikidata items -- e.g., a link to <a href="https://en.wikipedia.org/wiki/Menhaden">en:Menhaden</a> is represented as <a href="https://www.wikidata.org/wiki/Q218526">Q218526</a>.</p>
+      <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article. However, unlike the above purely-Wikidata model, this model uses an article's links
+        and will give different predictions depending on the language version of the article.</p>
+      <p>Because it relies on outlinks, it may have little data to go on for new articles that have few links or links to rarely-linked items.</p>
+      <h3>Querying the API</h3>
+      <p>Example: <a href="./api/v1/lang-agnostic-outlinks/topic?lang=en&title=Toni_Morrison">Toni Morrison (enwiki)</a></p>
+      <p>Or provide your own Wikipedia language and article title:</p>
+      <form action="#">
+        <div class="form-row align-items-center">
+          <div class="col-sm-4">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">lang</div>
+              </div>
+              <input type="text" class="form-control" id="lang" placeholder="en">
+            </div>
+          </div>
+        </div>
+        <div class="form-row align-items-center">
+          <div class="col-sm-6">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <div class="input-group-text">title</div>
+              </div>
+              <input type="text" class="form-control" id="page_title" placeholder="Toni Morrison">
+            </div>
+          </div>
+        </div>
+      <div class="form-row align-items-center">
+          <div class="col-auto">
+            <button type="submit" class="btn btn-primary" onclick="queryLangAgnosticAPI();">Query API</button>
+          </div>
+      </div>
+      </form>
+      <div class="row">
+        <div class="col-1"></div>
+        <div class="col-11">
+          <div id="lang-agnostic-results">
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </div>
@@ -74,33 +132,61 @@
 <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
 <script type="text/javascript">
-  var render_categories = function(data) {
-        $("#results").empty();
-		// console.log(["rendering", data]);
-		if ("Error" in data) {
-		  $("#results").append("<p><br>" + data["Error"] + "</p>");
-		}
-		else {
-          $("#results").append("<p><br>QID: " + data["qid"] + "<br>Label: " + data["name"] + "</p>");
-          if (data["results"].length > 0) {
-            $("#results").append("<li>TOPIC (CONFIDENCE)</li>");
-            for (var cat in data["results"]) {
-                //console.log(["looping", cat]);
-                $("#results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-            }
+  var render_categories_wd = function(data) {
+      $("#wikidata-results").empty();
+      // console.log(["rendering", data]);
+      if ("Error" in data) {
+        $("#wikidata-results").append("<p><br>" + data["Error"] + "</p>");
+      }
+      else {
+        $("#wikidata-results").append("<p><br>QID: " + data["qid"] + "<br>Label: " + data["name"] + "</p>");
+        if (data["results"].length > 0) {
+          $("#wikidata-results").append("<li>TOPIC (CONFIDENCE)</li>");
+          for (var cat in data["results"]) {
+              //console.log(["looping", cat]);
+              $("#wikidata-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
           }
-          else {
-            $("#results").append("<li><No confident topics predicted.</li>");
-          }
-		}
+        }
+        else {
+          $("#wikidata-results").append("<li><No confident topics predicted.</li>");
+        }
+      }
 	}
 
-  function queryAPI() {
+  function queryWikidataAPI() {
     var queryUrl = "https://tools.wmflabs.org/wiki-topic/api/v1/wikidata/topic?threshold=0.15&qid=Q" + document.getElementById('wikidata-id').value;
     console.log(queryUrl);
+    $.ajax(queryUrl, {success: render_categories_wd.bind(this),
+                      error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
+  }
+
+  var render_categories_la = function(data) {
+    $("#lang-agnostic-results").empty();
+    // console.log(["rendering", data]);
+    if ("Error" in data) {
+      $("#lang-agnostic-results").append("<p><br>" + data["Error"] + "</p>");
+    }
+    else {
+      $("#lang-agnostic-results").append('<p><br><a href="' + data["article"] + '">' + data["article"] + '</a></p>');
+      if (data["results"].length > 0) {
+        $("#lang-agnostic-results").append("<li>TOPIC (CONFIDENCE)</li>");
+        for (var cat in data["results"]) {
+            // console.log(["looping", cat]);
+            $("#lang-agnostic-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+        }
+      }
+      else {
+        $("#lang-agnostic-results").append("<li><No confident topics predicted.</li>");
+      }
+    }
+  }
+
+  function queryLangAgnosticAPI() {
+    var queryUrl = "https://tools.wmflabs.org/wiki-topic/api/v1/lang-agnostic-outlinks/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+    // console.log(queryUrl);
     $.ajax(queryUrl, {success: render_categories.bind(this),
                       error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
-}
+  }
 </script>
 </body>
 </html>

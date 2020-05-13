@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Language-agnostic Topic Results: {{page_title}} ({{lang}})</title>
+    <style>
+      table {font-family:courier;}
+      td {padding-left: 10px;}
+      .above-threshold {color: black;}
+      .below-threshold {color: silver;}
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2>Wikipedia Article: <a href="https://{{lang}}.wikipedia.org/wiki/{{page_title}}">{{qid}}</a></h2>
+      <h2>Topics:</h2>
+      <table>
+       <tr>
+         <th>Topic</th>
+         <th>Score</th>
+       </tr>
+       {% for t,s in topics %}
+         <tr>
+         {% if s >= 0.5 %}
+           <td class="above-threshold">{{t}}</td>
+           <td class="above-threshold">{{s}}</td>
+         {% else %}
+           <td class="below-threshold">{{t}}</td>
+           <td class="below-threshold">{{s}}</td>
+         {% endif %}
+         </tr>
+       {% endfor %}
+      </table>
+      <h2>Outlinks:</h2>
+      <table>
+        <tr>
+          <th>Wikidata ID</th>
+        </tr>
+        {% for o in outlinks %}
+        <tr>
+        <td><a href="https://www.wikidata.org/wiki/{{o}}">{{o}}</a></td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </body>
+</html>
