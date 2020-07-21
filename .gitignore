@@ -3,6 +3,3 @@
 
 # PyCharm config
 *.idea
-
-# User-config
-config.yaml

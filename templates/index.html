@@ -154,7 +154,7 @@
 	}
 
   function queryWikidataAPI() {
-    var queryUrl = "https://wiki-topic.toolforge.org/api/v1/wikidata/topic?threshold=0.15&qid=Q" + document.getElementById('wikidata-id').value;
+    var queryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&qid=Q" + document.getElementById('wikidata-id').value;
     console.log(queryUrl);
     $.ajax(queryUrl, {success: render_categories_wd.bind(this),
                       error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
@@ -182,7 +182,7 @@
   }
 
   function queryLangAgnosticAPI() {
-    var queryUrl = "https://wiki-topic.toolforge.org/api/v1/lang-agnostic-outlinks/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+    var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
     console.log(queryUrl);
     $.ajax(queryUrl, {success: render_categories_la.bind(this),
                       error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});

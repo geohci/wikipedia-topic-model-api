@@ -1,4 +1,0 @@
-fasttext
-flask
-mwapi
-pyyaml
