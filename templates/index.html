@@ -1,192 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <title>Wikidata-based Topic Exploration</title>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.4.1/css/bootstrap.min.css">
-  <link href="./static/site.css" rel="stylesheet">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Language-Agnostic Topic Classification</title>
+	<link rel="shortcut icon" href="./static/favicon.ico">
+	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./static/style.css" />
 </head>
+
 <body>
+	<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
 
-<div class="jumbotron jumbotron-fluid">
-  <div class="container">
-    <h1>Wikidata-based Topic Models</h1>
-    <p class="lead">This <strong>experimental</strong> tool is hosted on
-      <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge" target="_blank" rel="noopener">Toolforge</a>.
-      No guarantees are made that it will be maintained.
-      No additional personal data is collected by this tool per the Cloud Services
-      <a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.
-    </p>
-  </div>
-</div>
+	<div id="origin_bar">
+		<div class="boxwidth--1-1 padded--left padded--right">
+			<a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+		</div>
+	</div>
 
-<div class="container" id="wikidata-model">
-  <div class="row">
-    <div class="col-9">
-      <h2>Wikidata Topic Classification</h2>
-      <p>This first experimental API provides topic predictions for Wikipedia articles based on their Wikidata items.</p>
-      <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article (with a Wikidata item, which is <a href="https://github.com/martingerlach/coverage-wikipedia-wikidata">almost all of them</a>).</p>
-      <p>Because it relies on Wikidata items, it has little data to go on with sparse Wikidata items.</p>
-      <h3>Querying the API</h3>
-      <p>Example: <a href="https://wikidata-topic.wmcloud.org/api/v1/topic?qid=Q72334">Toni Morrison (Q72334)</a></p>
-      <p>Or provide your own Wikidata ID:</p>
-      <form action="#wikidata-model">
-        <div class="form-row align-items-center">
-          <div class="col-sm-4">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <div class="input-group-text">Q</div>
-              </div>
-              <input type="text" class="form-control" id="wikidata-id" placeholder="72334">
-            </div>
-          </div>
-          <div class="col-auto">
-            <button type="submit" class="btn btn-primary" onclick="queryWikidataAPI();">Query API</button>
-          </div>
-        </div>
-      </form>
-      <div class="row">
-        <div class="col-1"></div>
-        <div class="col-11">
-          <div id="wikidata-results">
-          </div>
-        </div>
-      </div>
+	<article id="tool_holder">
+		<!-- Header / Start -->
+		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+			<header id="tool_header">
+				<!-- Tool name -->
+				<h1>Language-Agnostic Topic Classification</h1>
+				<div class="meta">
+					<div class="disclaimer note">
+						<p>No guarantees are made that this tool will be maintained.</p>
+						<p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+					</div>
+					<div class="description padded--right">
+						<p>This tool showcases various language-agnostic topic classification models -- i.e. these models can label a Wikipedia article with one or more <a href="https://www.mediawiki.org/wiki/ORES/Articletopic#Taxonomy">high-level topics</a> using a single model that can provide predictions for any language edition of Wikipedia.</p>
+					</div>
+				</div>
+			</header>
+		</div>
 
-    </div>
-  </div>
-</div>
+		<div class="separator"></div>
 
-<div class="container">
-  <div class="row">
-      <div class="col-9">
-        <br><hr><br>
-      </div>
-  </div>
-</div>
+		<main id="tool_main">
+			<section id="wikidata-model" class="boxwidth--1-1 padded--left padded--right">
+				<h2>Wikidata Topic Classification</h2>
+				<section class="text">
+				  <p>This first experimental API provides topic predictions for Wikipedia articles based on their Wikidata items.</p>
+				  <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article (with a Wikidata item, which is <a href="https://github.com/martingerlach/coverage-wikipedia-wikidata">almost all of them</a>).</p>
+				  <p>Because it relies on Wikidata items, it has little data to go on with sparse Wikidata items.</p>
+				  <p>You can test out the API below -- for example, with <a href="https://wikidata-topic.wmcloud.org/api/v1/topic?qid=Q72334">Toni Morrison (Q72334)</a>, which will give you a list of most likely topics for the article along with the model's confidence</p>
+				</section>
+				<section class="form">
+					<form action="#wikidata-model">
+						<div class="cols cols3">
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Wikidata item ID -- e.g., Q42</span>
+									<input type="text" value="" placeholder="Placeholder text" id="wikidata-id"/>
+								</label>
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" onclick="queryWikidataBasedAPI();" />
+							</div>
+						</div>
+					</form>
+				</section>
+				<!-- Empty section to hold results -->
+				<section class="text" id="wikidata-based-results">
+				</section>
+			</section>
 
-<div class="container" id="lang-agnostic-model">
-  <div class="row">
-    <div class="col-9">
-      <h2>Wikipedia Topic Classification</h2>
-      <p>This second experimental API provides topic predictions for Wikipedia articles based on their links to other Wikipedia articles (outlinks only).</p>
-      <p>It represents these links as Wikidata items -- e.g., a link to <a href="https://en.wikipedia.org/wiki/Menhaden">en:Menhaden</a> is represented as <a href="https://www.wikidata.org/wiki/Q218526">Q218526</a>.</p>
-      <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article. However, unlike the above purely-Wikidata model, this model uses an article's links
-        and will give different predictions depending on the language version of the article and does not require that the article itself have an associated Wikidata item.</p>
-      <p>Because it relies on outlinks, it may have little data to go on for new articles that have few links or link to rarely-linked items (see <a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance/All_wikis#Performance_by_Number_of_Outlinks">performance</a>).</p>
-      <h3>Querying the API</h3>
-      <p>Example: <a href="https://wikipedia-topic.wmcloud.org/api/v1/topic?lang=en&title=Toni_Morrison">Toni Morrison (enwiki)</a></p>
-      <p>Or provide your own Wikipedia language and article title:</p>
-      <form action="#lang-agnostic-model">
-        <div class="form-row align-items-center">
-          <div class="col-sm-4">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <div class="input-group-text">lang</div>
-              </div>
-              <input type="text" class="form-control" id="lang" placeholder="en">
-            </div>
-          </div>
-        </div>
-        <div class="form-row align-items-center">
-          <div class="col-sm-6">
-            <div class="input-group">
-              <div class="input-group-prepend">
-                <div class="input-group-text">title</div>
-              </div>
-              <input type="text" class="form-control" id="page_title" placeholder="Toni Morrison">
-            </div>
-          </div>
-        </div>
-      <div class="form-row align-items-center">
-          <div class="col-auto">
-            <button type="submit" class="btn btn-primary" onclick="queryLangAgnosticAPI();">Query API</button>
-          </div>
-      </div>
-      </form>
-      <div class="row">
-        <div class="col-1"></div>
-        <div class="col-11">
-          <div id="lang-agnostic-results">
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+			<section id="wikipedia-model" class="boxwidth--1-1 padded--left padded--right">
+				<h2>Wikipedia Topic Classification</h2>
+				<section class="text">
+					<p>This second experimental API provides topic predictions for Wikipedia articles based on their links to other Wikipedia articles (outlinks only).</p>
+					<p>It represents these links as Wikidata items -- e.g., a link to <a href="https://en.wikipedia.org/wiki/Menhaden">en:Menhaden</a> is represented as <a href="https://www.wikidata.org/wiki/Q218526">Q218526</a>.</p>
+					<p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article. However, unlike the above purely-Wikidata model, this model uses an article's links and will give different predictions depending on the language version of the article and does not require that the article itself have an associated Wikidata item.</p>
+					<p>Because it relies on outlinks, it may have little data to go on for new articles that have few links or link to rarely-linked items (see <a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance/All_wikis#Performance_by_Number_of_Outlinks">performance</a>).</p>
+					<p>You can test out the API below -- for example, with <a href="https://wikipedia-topic.wmcloud.org/api/v1/topic?lang=en&title=Toni_Morrison">Toni Morrison (en)</a></p>
+				</section>
+				<section class="form">
+					<form action="#wikipedia-model">
+						<div class="cols cols3">
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
+								</label>
+							</div>
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+									<input type="text" value="" placeholder="Placeholder text" id="page_title"/>
+								</label>
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" onclick="queryWikilinkBasedAPI();" />
+							</div>
+						</div>
+					</form>
+				</section>
 
-<footer class="footer">
-  <div class="container">
-    <div class="row">
-      <span class="text-muted">
-          Brought to you by <a href='https://meta.wikipedia.org/wiki/User:Isaac_(WMF)'>Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a><br>
-          <a href="https://github.com/geohci/wikidata-topic-model-api">View Source</a> &middot;
-          <a href="https://meta.wikimedia.org/wiki/Research_talk:Characterizing_Wikipedia_Reader_Behaviour/Demographics_and_Wikipedia_use_cases/Work_log/2019-09-11">Meta</a> &middot;
-          <a href="https://figshare.com/articles/Wikipedia_Articles_and_Associated_WikiProject_Templates/10248344">Data</a> &middot; <a href="https://github.com/geohci/wikidata-topic-model-api#license">License</a>
-      </span>
-    </div>
-  </div>
-</footer>
+				<!-- Empty section to hold results -->
+				<section class="text" id="link-based-results">
+				</section>
+			</section>
+		</main>
+	</article>
 
-<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/twitter-bootstrap/4.4.1/js/bootstrap.min.js"></script>
-<script type="text/javascript">
-  var render_categories_wd = function(data) {
-      $("#wikidata-results").empty();
-      // console.log(["rendering", data]);
-      if ("Error" in data) {
-        $("#wikidata-results").append("<p><br>" + data["Error"] + "</p>");
-      }
-      else {
-        $("#wikidata-results").append('<p><br>QID: <a href="https://wikidata.org/wiki/' + data["qid"] + '">' + data["qid"] + '</a><br>Label: ' + data["name"] + "</p>");
-        if (data["results"].length > 0) {
-          $("#wikidata-results").append("<li>TOPIC (CONFIDENCE)</li>");
-          for (var cat in data["results"]) {
-              //console.log(["looping", cat]);
-              $("#wikidata-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-          }
-        }
-        else {
-          $("#wikidata-results").append("<li><No confident topics predicted.</li>");
-        }
-      }
-	}
+	<footer id="tool_footer">
+		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<ul>
+				<li><a href="https://github.com/geohci/wikidata-topic-model-api">View Source</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification">Meta</a></li>
+				<li><a href="https://github.com/geohci/wikidata-topic-model-api#license">License</a></li>
+			</ul>
+		</div>
+	</footer>
 
-  function queryWikidataAPI() {
-    var queryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&qid=Q" + document.getElementById('wikidata-id').value;
-    console.log(queryUrl);
-    $.ajax(queryUrl, {success: render_categories_wd.bind(this),
-                      error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
-  }
 
-  var render_categories_la = function(data) {
-    $("#lang-agnostic-results").empty();
-    // console.log(["rendering", data]);
-    if ("Error" in data) {
-      $("#lang-agnostic-results").append("<p><br>" + data["Error"] + "</p>");
-    }
-    else {
-      $("#lang-agnostic-results").append('<p><br><a href="' + data["article"] + '">' + data["article"] + '</a></p>');
-      if (data["results"].length > 0) {
-        $("#lang-agnostic-results").append("<li>TOPIC (CONFIDENCE)</li>");
-        for (var cat in data["results"]) {
-            // console.log(["looping", cat]);
-            $("#lang-agnostic-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-        }
-      }
-      else {
-        $("#lang-agnostic-results").append("<li><No confident topics predicted.</li>");
-      }
-    }
-  }
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				$(this).addClass('off');
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
 
-  function queryLangAgnosticAPI() {
-    var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-    console.log(queryUrl);
-    $.ajax(queryUrl, {success: render_categories_la.bind(this),
-                      error: function(jqxmlhr, status, error){console.log(status + ": " + error)}});
-  }
-</script>
+	</script>
+
+	<script type="text/javascript">
+		var render_categories_wd = function(data) {
+			$("#wikidata-based-results").empty();
+			// console.log(["rendering", data]);
+			if ("Error" in data) {
+				$("#wikidata-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
+			}
+			else {
+				$("#wikidata-based-results").append('<br><h3><a href="https://wikidata.org/wiki/' + data["qid"] + '">' + data["qid"] + '</a> (' + data["name"] + ')</h3>');
+				if (data["results"].length > 0) {
+					$("#wikidata-based-results").append("<ol>");
+					for (var cat in data["results"]) {
+						//console.log(["looping", cat]);
+						$("#wikidata-based-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+					}
+					$("#wikidata-based-results").append("</ol>");
+				}
+				else {
+					$("#wikidata-based-results").append("<li><No confident topics predicted.</li>");
+				}
+			}
+		}
+
+		function queryWikidataBasedAPI() {
+			var queryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&qid=" + document.getElementById('wikidata-id').value;
+			console.log(queryUrl);
+			$.ajax(queryUrl, {success: render_categories_wd.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+	    }
+
+	    var render_categories_lb = function(data) {
+			$("#link-based-results").empty();
+			// console.log(["rendering", data]);
+			if ("Error" in data) {
+				$("#link-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
+			}
+			else {
+				$("#link-based-results").append('<br><h3><a href="' + data["article"] + '">' + data["article"] + '</a></h3>');
+			  	if (data["results"].length > 0) {
+					$("#link-based-results").append("<ol>");
+					for (var cat in data["results"]) {
+						// console.log(["looping", cat]);
+						$("#link-based-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+					}
+					$("#link-based-results").append("</ol>");
+			  	}
+			  	else {
+					$("#link-based-results").append("<li><No confident topics predicted.</li>");
+			  	}
+			}
+		}
+
+	  	function queryWikilinkBasedAPI() {
+			var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+			console.log(queryUrl);
+			$.ajax(queryUrl, {success: render_categories_lb.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+	  	}
+	</script>
+
 </body>
+
 </html>
