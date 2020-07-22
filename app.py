@@ -4,7 +4,7 @@ import os
 import yaml
 
 from flask import Flask, render_template
-import flask_cors
+from flask_cors import CORS
 
 app = Flask(__name__)
 
@@ -19,7 +19,8 @@ except IOError:
     pass
 
 # Enable CORS for API endpoints
-cors = flask_cors.CORS(app, resources={r'/api/*': {'origins': '*'}})
+#CORS(app, resources={'*': {'origins': '*'}})
+CORS(app)
 
 @app.route('/')
 def index():
