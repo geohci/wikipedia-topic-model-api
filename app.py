@@ -24,3 +24,7 @@ cors = flask_cors.CORS(app, resources={r'/api/*': {'origins': '*'}})
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/comparison')
+def index():
+    return render_template('comparison.html')
