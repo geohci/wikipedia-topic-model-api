@@ -215,7 +215,7 @@
 
 		var query_ores = function(data, lang, revidQueryUrl) {
 			if ("missing" in data["query"]["pages"][0]) {
-				render_categories_wt({'error':'No revision ID found for: ' + revidQueryUrl}, lang, -1);
+				render_categories_wt({'error': {'message':'No revision ID found for: ' + revidQueryUrl}}, lang, -1);
 			}
 			else {
 				var revid = data["query"]["pages"][0]["revisions"][0]["revid"];
