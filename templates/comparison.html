@@ -180,7 +180,6 @@
 		}
 
 		var render_categories_wt = function(data, lang, revid) {
-			console.log(data);
 			$("#text-based-results").empty();
 			if ("error" in data) {
 				$("#text-based-results").append("<br><h3>ORES (text-based)</h3><p>Error: " + data["error"]["message"] + "</p>");
