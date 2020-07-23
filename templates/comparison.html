@@ -220,7 +220,6 @@
 			else {
 				var revid = data["query"]["pages"][0]["revisions"][0]["revid"];
 				var wikitextQueryUrl = "https://ores.wmflabs.org/v3/scores/" + lang + "wiki/?models=articletopic&revids=" + revid;
-				console.log(wikitextQueryUrl);
 				$.ajax(wikitextQueryUrl, {success: function(jqxmlhr, status, error){render_categories_wt(jqxmlhr, lang, revid)},
 										  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 										 }
@@ -234,15 +233,15 @@
 			// https://www.mediawiki.org/wiki/API:Cross-site_requests#JSONP_usage
 			var revidQueryUrl = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&prop=revisions&titles=" + document.getElementById('page_title').value + "&rvlimit=1&rvprop=ids&formatversion=2&format=json&origin=*"
 		    $.ajax(revidQueryUrl, {success: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)},
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  error: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)}
 							  }
 				  );
 			$.ajax(wikidataQueryUrl, {success: render_categories_wd.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  error: render_categories_wd.bind(this)}
 							  }
 				  );
 			$.ajax(wikilinkQueryUrl, {success: render_categories_wl.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  error: render_categories_wl.bind(this)}
 							  }
 				  );
 	    }
