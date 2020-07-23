@@ -144,7 +144,6 @@
 	<script type="text/javascript">
 		var render_categories_wd = function(data) {
 			$("#wikidata-based-results").empty();
-			// console.log(["rendering", data]);
 			if ("Error" in data) {
 				$("#wikidata-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
@@ -153,7 +152,6 @@
 				if (data["results"].length > 0) {
 					$("#wikidata-based-results").append("<ol>");
 					for (var cat in data["results"]) {
-						//console.log(["looping", cat]);
 						$("#wikidata-based-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
 					}
 					$("#wikidata-based-results").append("</ol>");
@@ -166,7 +164,6 @@
 
 		function queryWikidataBasedAPI() {
 			var queryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&qid=" + document.getElementById('wikidata-id').value;
-			console.log(queryUrl);
 			$.ajax(queryUrl, {success: render_categories_wd.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
@@ -175,7 +172,6 @@
 
 	    var render_categories_lb = function(data) {
 			$("#link-based-results").empty();
-			// console.log(["rendering", data]);
 			if ("Error" in data) {
 				$("#link-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
@@ -184,7 +180,6 @@
 			  	if (data["results"].length > 0) {
 					$("#link-based-results").append("<ol>");
 					for (var cat in data["results"]) {
-						// console.log(["looping", cat]);
 						$("#link-based-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
 					}
 					$("#link-based-results").append("</ol>");
@@ -197,7 +192,6 @@
 
 	  	function queryWikilinkBasedAPI() {
 			var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-			console.log(queryUrl);
 			$.ajax(queryUrl, {success: render_categories_lb.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }

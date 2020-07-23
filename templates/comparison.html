@@ -129,7 +129,6 @@
 	<script type="text/javascript">
 		var render_categories_wd = function(data) {
 			$("#wikidata-based-results").empty();
-			// console.log(["rendering", data]);
 			if ("Error" in data) {
 				$("#wikidata-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
@@ -138,7 +137,6 @@
 				if (data["results"].length > 0) {
 					$("#wikidata-based-results").append("<ol>");
 					for (var cat in data["results"]) {
-						//console.log(["looping", cat]);
 						if (data["results"][cat]["score"] >= 0.5) {
 							$("#wikidata-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
 						} else {
@@ -155,7 +153,6 @@
 
 		var render_categories_wl = function(data) {
 			$("#link-based-results").empty();
-			// console.log(["rendering", data]);
 			if ("Error" in data) {
 				$("#link-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
@@ -164,7 +161,6 @@
 			  	if (data["results"].length > 0) {
 					$("#link-based-results").append("<ol>");
 					for (var cat in data["results"]) {
-						// console.log(["looping", cat]);
 						if (data["results"][cat]["score"] >= 0.5) {
 							$("#link-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
 						} else {
@@ -181,7 +177,6 @@
 
 		var render_categories_wt = function(data, lang, revid) {
 			$("#text-based-results").empty();
-			// console.log(["rendering", data]);
 			if ("error" in data) {
 				$("#text-based-results").append("<br><h3>ORES (text-based)</h3><p>Error: " + data["error"]["message"] + "</p>");
 			}
@@ -199,7 +194,6 @@
 			  	if (sorted_res.length > 0) {
 					$("#text-based-results").append("<ol>");
 					for (var cat in sorted_res) {
-						// console.log(["looping", cat]);
 						if (cat[1] >= 0.5) {
 							$("#text-based-results").append("<li class='above-threshold'>" + cat[0] + " (" + Math.round(cat[1]*100) + "%)</li>");
 						}
@@ -222,7 +216,6 @@
 			else {
 				var revid = query["pages"][0]["revisions"]["revid"];
 				var wikitextQueryUrl = "https://ores.wmflabs.org/v3/scores/" + lang + "wiki/?models=articletopic&revids=" + revid;
-				console.log(wikitextQueryUrl);
 				$.ajax(wikitextQueryUrl, {success: function(jqxmlhr, status, error){render_categories_wt(jqxmlhr, lang, revid)},
 										  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 										 }
@@ -233,11 +226,8 @@
 		function queryTopicModels() {
 			var wikidataQueryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			var wikilinkQueryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-			var revidQueryUrl = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&prop=revisions&titles=" + document.getElementById('page_title').value + "&rvlimit=1&rvprop=ids&formatversion=2&format=json"
-
-			console.log(wikidataQueryUrl);
-			console.log(wikilinkQueryUrl);
-			console.log(revidQueryUrl);
+			// https://www.mediawiki.org/wiki/API:Cross-site_requests#JSONP_usage
+			var revidQueryUrl = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&prop=revisions&titles=" + document.getElementById('page_title').value + "&rvlimit=1&rvprop=ids&formatversion=2&format=json&origin=*"
 		    $.ajax(revidQueryUrl, {success: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)},
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
