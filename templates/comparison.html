@@ -137,7 +137,7 @@
 			}
 			else {
 				var wikidataURL = 'https://wikidata.org/wiki/' + data["qid"];
-				$("#wikidata-based-results").append('<br><h3>Wikidata-based</h3><p><a href=" + wikidataURL + '">' + wikidataURL + '</a>;
+				$("#wikidata-based-results").append('<br><h3>Wikidata-based</h3><p><a href="' + wikidataURL + '">' + wikidataURL + '</a></p>');
 				if (data["results"].length > 0) {
 					$("#wikidata-based-results").append("<ol>");
 					for (var cat in data["results"]) {
@@ -186,7 +186,7 @@
 			}
 			else {
 				var articleUrl = 'https://' + lang + '.wikipedia.org/wiki/?oldid=' + revid;
-				$("#text-based-results").append('<br><h3>ORES (text-based)</h3><p><a href=" + articleUrl + '">' + articleUrl + '</a></p>');
+				$("#text-based-results").append('<br><h3>ORES (text-based)</h3><p><a href="' + articleUrl + '">' + articleUrl + '</a></p>');
 				var res = data[lang + 'wiki']['scores'][revid]['articletopic']['score']['probability'];
 				// Sort by value
 				var sorted_res = Object.keys(res).map(function(key) {
