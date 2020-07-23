@@ -65,7 +65,7 @@
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
-								<input type="submit" value="Submit" onclick="queryTopicModels();" />
+								<input type="submit" value="Submit" id="btnSubmit" />
 							</div>
 						</div>
 					</form>
@@ -123,10 +123,13 @@
 				$('*[placeholder]', this).attr('placeholder', '');
 			});
 		});
-
 	</script>
 
 	<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); queryTopicModels();
+		});
+
 		var render_categories_wd = function(data) {
 			$("#wikidata-based-results").empty();
 			if ("Error" in data) {
@@ -210,11 +213,11 @@
 		}
 
 		var query_ores = function(data, lang, revidQueryUrl) {
-			if ("missing" in query["pages"][0]) {
+			if ("missing" in data["pages"][0]) {
 				render_categories_wt({'error':'No revision ID found for: ' + revidQueryUrl}, lang, -1);
 			}
 			else {
-				var revid = query["pages"][0]["revisions"]["revid"];
+				var revid = data["pages"][0]["revisions"]["revid"];
 				var wikitextQueryUrl = "https://ores.wmflabs.org/v3/scores/" + lang + "wiki/?models=articletopic&revids=" + revid;
 				$.ajax(wikitextQueryUrl, {success: function(jqxmlhr, status, error){render_categories_wt(jqxmlhr, lang, revid)},
 										  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
