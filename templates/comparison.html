@@ -219,7 +219,7 @@
 			}
 			else {
 				var revid = data["query"]["pages"][0]["revisions"][0]["revid"];
-				var wikitextQueryUrl = "https://ores.wmflabs.org/v3/scores/" + lang + "wiki/?models=articletopic&revids=" + revid;
+				var wikitextQueryUrl = "https://ores.wikimedia.org/v3/scores/" + lang + "wiki/" + revid + "/articletopic";
 				$.ajax(wikitextQueryUrl, {success: function(jqxmlhr, status, error){render_categories_wt(jqxmlhr, lang, revid)},
 										  error: function(jqxmlhr, status, error){render_categories_wt(jqxmlhr.responseJSON, lang, revid)}
 										 }
