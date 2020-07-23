@@ -227,7 +227,18 @@
 		  	}
 		}
 
+		var update_title = function(data) {
+			document.getElementById('page_title').value = data['query']['random'][0]['title'];
+		}
+
 		function queryTopicModels() {
+			if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
+				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1";
+				$.ajax(randomPageQueryURL, {success: update_title.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+			}
 			var wikidataQueryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			var wikilinkQueryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			// https://www.mediawiki.org/wiki/API:Cross-site_requests#JSONP_usage
