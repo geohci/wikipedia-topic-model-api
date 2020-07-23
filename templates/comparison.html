@@ -136,7 +136,7 @@
 				$("#wikidata-based-results").append("<br><h3>Wikidata-based</h3><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
-				var wikidataURL = https://wikidata.org/wiki/' + data["qid"];
+				var wikidataURL = 'https://wikidata.org/wiki/' + data["qid"];
 				$("#wikidata-based-results").append('<br><h3>Wikidata-based</h3><p><a href=" + wikidataURL + '">' + wikidataURL + '</a>;
 				if (data["results"].length > 0) {
 					$("#wikidata-based-results").append("<ol>");
