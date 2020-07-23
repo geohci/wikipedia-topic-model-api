@@ -185,13 +185,13 @@
 			}
 			else {
 				$("#text-based-results").append('<br><p><a href="https://' + lang + '.wikipedia.org/wiki/?oldid=' + revid + '">Revid: ' + revid + '</a></p>');
-				var res = data['scores'][revid]['articletopic']['score']['probability'];
+				var res = data[lang + 'wiki']['scores'][revid]['articletopic']['score']['probability'];
 				// Sort by value
 				var sorted_res = Object.keys(res).map(function(key) {
 				  return [key, res[key]];
 				});
-				sorted_res.filter(topic => topic[1] > 0.15);
-				sorted_res.sort(function(first, second) {
+				sorted_res = sorted_res.filter(topic => topic[1] > 0.15);
+				sorted_res = sorted_res.sort(function(first, second) {
 				  return second[1] - first[1];
 				});
 			  	if (sorted_res.length > 0) {
