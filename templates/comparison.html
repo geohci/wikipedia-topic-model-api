@@ -219,6 +219,7 @@
 			else {
 				var revid = data["query"]["pages"][0]["revisions"]["revid"];
 				var wikitextQueryUrl = "https://ores.wmflabs.org/v3/scores/" + lang + "wiki/?models=articletopic&revids=" + revid;
+				console.log(wikitextQueryUrl);
 				$.ajax(wikitextQueryUrl, {success: function(jqxmlhr, status, error){render_categories_wt(jqxmlhr, lang, revid)},
 										  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 										 }
