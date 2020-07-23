@@ -133,7 +133,7 @@
 		var render_categories_wd = function(data) {
 			$("#wikidata-based-results").empty();
 			if ("Error" in data) {
-				$("#wikidata-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
+				$("#wikidata-based-results").append("<br><h3>Wikidata-based</h3><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
 				$("#wikidata-based-results").append('<br><h3>Wikidata-based</h3><p><a href="https://wikidata.org/wiki/' + data["qid"] + '">' + data["qid"] + '</a> (' + data["name"] + ')</p>');
@@ -157,7 +157,7 @@
 		var render_categories_wl = function(data) {
 			$("#link-based-results").empty();
 			if ("Error" in data) {
-				$("#link-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
+				$("#link-based-results").append("<br><h3>Link-based</h3><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
 				$("#link-based-results").append('<br><h3>Link-based</h3><p><a href="' + data["article"] + '">' + data["article"] + '</a></p>');
@@ -184,7 +184,7 @@
 				$("#text-based-results").append("<br><h3>ORES (text-based)</h3><p>Error: " + data["error"]["message"] + "</p>");
 			}
 			else {
-				$("#text-based-results").append('<br><p><a href="https://' + lang + '.wikipedia.org/wiki/?oldid=' + revid + '">Revid: ' + revid + '</a></p>');
+				$("#text-based-results").append('<br><h3>ORES (text-based)</h3><p><a href="https://' + lang + '.wikipedia.org/wiki/?oldid=' + revid + '">Revid: ' + revid + '</a></p>');
 				var res = data[lang + 'wiki']['scores'][revid]['articletopic']['score']['probability'];
 				// Sort by value
 				var sorted_res = Object.keys(res).map(function(key) {
@@ -196,12 +196,11 @@
 				});
 			  	if (sorted_res.length > 0) {
 					$("#text-based-results").append("<ol>");
-					for (var cat in sorted_res) {
-						if (cat[1] >= 0.5) {
-							$("#text-based-results").append("<li class='above-threshold'>" + cat[0] + " (" + Math.round(cat[1]*100) + "%)</li>");
-						}
-						else {
-							$("#text-based-results").append("<li class='below-threshold'>" + cat[0] + " (" + Math.round(cat[1]*100) + "%)</li>");
+					for (i=0; i<sorted_res.length;i++) {
+						if (sorted_res[i][1] >= 0.5) {
+							$("#text-based-results").append("<li class='above-threshold'>" + sorted_res[i][0] + " (" + Math.round(sorted_res[i][1]*100) + "%)</li>");
+						} else {
+							$("#text-based-results").append("<li class='below-threshold'>" + sorted_res[i][0] + " (" + Math.round(sorted_res[i][1]*100) + "%)</li>");
 						}
 					}
 					$("#text-based-results").append("</ol>");
