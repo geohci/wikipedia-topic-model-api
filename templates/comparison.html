@@ -233,9 +233,10 @@
 
 		function queryTopicModels() {
 			if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
-				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1";
+				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=0&origin=*";
 				$.ajax(randomPageQueryURL, {success: update_title.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+							  async: false
 							  }
 				  );
 			}
