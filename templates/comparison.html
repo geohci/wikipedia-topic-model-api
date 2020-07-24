@@ -229,6 +229,7 @@
 
 		var update_title = function(data) {
 			document.getElementById('page_title').value = data['query']['random'][0]['title'];
+			document.getElementById('page_title').parentNode.className = 'placeholder';
 		}
 
 		function queryTopicModels() {
