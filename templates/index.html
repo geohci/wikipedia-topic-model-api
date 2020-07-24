@@ -9,6 +9,11 @@
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="./static/style.css" />
+	<style>
+      .above-threshold {color: black;}
+      .below-threshold {color: silver;}
+    </style>
+
 </head>
 
 <body>
@@ -161,7 +166,11 @@
 				if (data["results"].length > 0) {
 					$("#wikidata-based-results").append("<ol>");
 					for (var cat in data["results"]) {
-						$("#wikidata-based-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						if (data["results"][cat]["score"] >= 0.5)  {
+							$("#wikidata-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						} else {
+							$("#wikidata-based-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						}
 					}
 					$("#wikidata-based-results").append("</ol>");
 				}
@@ -189,7 +198,11 @@
 			  	if (data["results"].length > 0) {
 					$("#link-based-results").append("<ol>");
 					for (var cat in data["results"]) {
-						$("#link-based-results").append("<li>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						if (data["results"][cat]["score"] >= 0.5) {
+							$("#link-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						} else {
+							$("#link-based-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						}
 					}
 					$("#link-based-results").append("</ol>");
 			  	}
