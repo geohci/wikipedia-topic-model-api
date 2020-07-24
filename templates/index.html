@@ -63,7 +63,7 @@
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
-								<input type="submit" value="Submit" onclick="queryWikidataBasedAPI();" />
+								<input type="submit" value="Submit" id="wdBtnSubmit" />
 							</div>
 						</div>
 					</form>
@@ -97,7 +97,7 @@
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
-								<input type="submit" value="Submit" onclick="queryWikilinkBasedAPI();" />
+								<input type="submit" value="Submit" id="wlBtnSubmit" />
 							</div>
 						</div>
 					</form>
@@ -142,6 +142,15 @@
 	</script>
 
 	<script type="text/javascript">
+		$('#wlBtnSubmit').click(function (e) {
+		   e.preventDefault(); queryWikilinkBasedAPI();
+		});
+
+		$('#wdBtnSubmit').click(function (e) {
+		   e.preventDefault(); queryWikidataBasedAPI();
+		});
+
+
 		var render_categories_wd = function(data) {
 			$("#wikidata-based-results").empty();
 			if ("Error" in data) {
