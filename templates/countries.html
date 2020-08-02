@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Language-Agnostic Topic Classification</title>
+	<link rel="shortcut icon" href="./static/favicon.ico">
+	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./static/style.css" />
+	<style>
+      .above-threshold {color: black;}
+      .below-threshold {color: silver;}
+    </style>
+
+</head>
+
+<body>
+	<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
+
+	<div id="origin_bar">
+		<div class="boxwidth--1-1 padded--left padded--right">
+			<a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+		</div>
+	</div>
+
+	<article id="tool_holder">
+		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+			<header id="tool_header">
+				<!-- Tool name -->
+				<h1>Country Classification</h1>
+				<div class="meta">
+					<div class="disclaimer note">
+						<p>No guarantees are made that this tool will be maintained.</p>
+						<p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+					</div>
+					<div class="description padded--right">
+						<p>This tool labels Wikipedia articles with countries that are predicted to relate to the article. The countries are drawn from <a href="https://www.wikidata.org/wiki/Special:WhatLinksHere/Q3624078">places that are instance-of sovereign state on Wikidata (193 in total).</a>
+						</p>
+					</div>
+				</div>
+			</header>
+		</div>
+
+		<div class="separator"></div>
+
+		<section id="topic-models" class="boxwidth--1-1 padded--left padded--right">
+			<main id="tool_main">
+				<section class="form">
+					<form action="#topic-models">
+						<div class="cols cols3">
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
+								</label>
+							</div>
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+									<input type="text" value="" placeholder="Placeholder text" id="page_title"/>
+								</label>
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" id="btnSubmit" />
+							</div>
+						</div>
+					</form>
+				</section>
+				<section id="results">
+					<div class="cols cols3">
+						<div class="col col3">
+							<section class="text" id="country-results">
+							<!-- Empty section to hold results -->
+							</section>
+						</div>
+					</div>
+				</section>
+		</main>
+	</article>
+
+	<footer id="tool_footer">
+		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<ul>
+				<li><a href="https://github.com/geohci/wikidata-topic-model-api">View Source</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification">Meta</a></li>
+				<li><a href="https://github.com/geohci/wikidata-topic-model-api#license">License</a></li>
+			</ul>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				$(this).addClass('off');
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
+
+	</script>
+
+	<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); queryCountryAPI();
+		});
+
+	    var render_categories = function(data) {
+			$("#country-results").empty();
+			if ("Error" in data) {
+				$("#country-results").append("<br><p>Error: " + data["Error"] + "</p>");
+			}
+			else {
+				$("#country-results").append('<br><h3><a href="' + data["article"] + '">' + data["article"] + '</a></h3>');
+			  	if (data["results"].length > 0) {
+					$("#country-results").append("<ol>");
+					for (var cat in data["results"]) {
+						if (data["results"][cat]["score"] >= 0.5) {
+							$("#country-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						} else {
+							$("#country-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						}
+					}
+					$("#country-results").append("</ol>");
+			  	}
+			  	else {
+					$("#country-results").append("<li><No confident topics predicted.</li>");
+			  	}
+			}
+		}
+
+	  	function queryCountryAPI() {
+			var queryUrl = "https://wikipedia-country.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+			$.ajax(queryUrl, {success: render_categories.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+	  	}
+	</script>
+
+</body>
+
+</html>

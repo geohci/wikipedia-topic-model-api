@@ -29,3 +29,7 @@ def index():
 @app.route('/comparison')
 def comparison():
     return render_template('comparison.html')
+
+@app.route('/countries')
+def comparison():
+    return render_template('countries.html')
