@@ -31,5 +31,5 @@ def comparison():
     return render_template('comparison.html')
 
 @app.route('/countries')
-def comparison():
+def countries():
     return render_template('countries.html')
