@@ -52,7 +52,7 @@
 			<main id="tool_main">
 				<section class="form">
 					<form action="#topic-models">
-						<div class="cols cols3">
+						<div class="cols cols4">
 							<div class="col col1">
 								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
 									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
@@ -71,7 +71,7 @@
 					</form>
 				</section>
 				<section id="results">
-					<div class="cols cols3">
+					<div class="cols cols4">
 						<div class="col col1">
 							<section class="text" id="wikidata-based-results">
 							<!-- Empty section to hold results -->
@@ -89,6 +89,13 @@
 							<!-- Empty section to hold results -->
 							</section>
 						</div>
+
+						<div class="col col1">
+							<section class="text" id="groundtruth">
+							<!-- Empty section to hold results -->
+							</section>
+						</div>
+
 					</div>
 				</section>
 			</main>
@@ -179,6 +186,26 @@
 			}
 		}
 
+		var render_categories_gt = function(data) {
+			$("#groundtruth").empty();
+			if ("Error" in data) {
+				$("#groundtruth").append("<br><h3>Groundtruth</h3><p>Error: " + data["Error"] + "</p>");
+			}
+			else {
+				$("#groundtruth").append('<br><h3>Groundtruth</h3><p><a href="' + data["article"] + '">' + data["article"] + '</a></p>');
+			  	if (data["results"].length > 0) {
+					$("#groundtruth").append("<ol>");
+					for (var cat in data["results"]) {
+						$("#groundtruth").append("<li>" + data["results"][cat]["topic"] + "</li>");
+					}
+					$("#groundtruth").append("</ol>");
+			  	}
+			  	else {
+					$("#groundtruth").append("<li><No groundtruth topics identified.</li>");
+			  	}
+			}
+		}
+
 		var render_categories_wt = function(data, lang, revid) {
 			$("#text-based-results").empty();
 			if ("error" in data) {
@@ -245,6 +272,7 @@
 			var wikilinkQueryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			// https://www.mediawiki.org/wiki/API:Cross-site_requests#JSONP_usage
 			var revidQueryUrl = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&prop=revisions&titles=" + document.getElementById('page_title').value + "&rvlimit=1&rvprop=ids&formatversion=2&format=json&origin=*"
+			var groundtruthQueryUrl = "https://topic-groundtruth.wmcloud.org/api/v1/topic?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 		    $.ajax(revidQueryUrl, {success: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)},
 							  error: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)}
 							  }
@@ -257,6 +285,11 @@
 							  error: render_categories_wl.bind(this)
 							  }
 				  );
+			$.ajax(groundtruthQueryUrl, {success: render_categories_gt.bind(this),
+							  error: render_categories_gt.bind(this)
+							  }
+				  );
+
 	    }
 	</script>
 
