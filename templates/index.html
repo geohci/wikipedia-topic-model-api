@@ -61,10 +61,16 @@
 				<section class="form">
 					<form action="#wikidata-model">
 						<div class="cols cols3">
-							<div class="col col1">
-								<label class="placeholder"><span class="field_name">Wikidata item ID -- e.g., Q42</span>
+							<div class="col col2">
+								{% if qid %}
+								<label class="placeholder"><span class="field_name">Wikidata ID -- e.g., Q42 for Douglas Adams</span>
+									<input type="text" value="{{qid}}" placeholder="Placeholder text" id="wikidata-id"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">Wikidata ID -- e.g., Q42 for Douglas Adams</span>
 									<input type="text" value="" placeholder="Placeholder text" id="wikidata-id"/>
 								</label>
+								{% endif %}
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
@@ -91,14 +97,26 @@
 					<form action="#wikipedia-model">
 						<div class="cols cols3">
 							<div class="col col1">
+								{% if lang %}
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
+								</label>
+								{% else %}
 								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
 									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
 								</label>
+								{% endif %}
 							</div>
 							<div class="col col1">
+								{% if title %}
+								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+									<input type="text" value="{{title}}" placeholder="Placeholder text" id="page_title"/>
+								</label>
+								{% else %}
 								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
 									<input type="text" value="" placeholder="Placeholder text" id="page_title"/>
 								</label>
+								{% endif %}
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
@@ -131,7 +149,9 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$('form label.placeholder').each(function() {
-				$(this).addClass('off');
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
 				$(this).on('focusin', function() {
 					$(this).removeClass('off');
 				});
@@ -143,7 +163,6 @@
 				$('*[placeholder]', this).attr('placeholder', '');
 			});
 		});
-
 	</script>
 
 	<script type="text/javascript">

@@ -55,14 +55,26 @@
 					<form action="#topic-models">
 						<div class="cols cols3">
 							<div class="col col1">
+								{% if lang %}
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
+								</label>
+								{% else %}
 								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
 									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
 								</label>
+								{% endif %}
 							</div>
 							<div class="col col1">
+								{% if title %}
+								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+									<input type="text" value="{{title}}" placeholder="Placeholder text" id="page_title"/>
+								</label>
+								{% else %}
 								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
 									<input type="text" value="" placeholder="Placeholder text" id="page_title"/>
 								</label>
+								{% endif %}
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
@@ -99,7 +111,9 @@
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$('form label.placeholder').each(function() {
-				$(this).addClass('off');
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
 				$(this).on('focusin', function() {
 					$(this).removeClass('off');
 				});
