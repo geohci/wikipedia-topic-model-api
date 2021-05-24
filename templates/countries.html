@@ -139,20 +139,16 @@
 				$("#country-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
-				$("#country-results").append('<br><h3><a href="' + data["article"] + '">' + data["article"] + '</a></h3>');
-			  	if (data["results"].length > 0) {
+				$("#country-results").append('<br><h3><a href="https://wikidata.org/wiki/' + data[0]["qid"] + '">' + data[0]["qid"] + '</a></h3>');
+			  	if (data[0]['regions'].length > 0) {
 					$("#country-results").append("<ol>");
-					for (var cat in data["results"]) {
-						if (data["results"][cat]["score"] >= 0.5) {
-							$("#country-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						} else {
-							$("#country-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						}
+					for (var reg in data[0]['regions']) {
+						$("#country-results").append("<li>" + data[0]['regions'][reg]["region"] + "</li>");
 					}
 					$("#country-results").append("</ol>");
 			  	}
 			  	else {
-					$("#country-results").append("<li><No confident topics predicted.</li>");
+					$("#country-results").append("<li>No relevant countries predicted.</li>");
 			  	}
 			}
 		}
