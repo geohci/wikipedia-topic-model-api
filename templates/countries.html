@@ -173,7 +173,7 @@
 				  );
 			}
 
-			var queryUrl = "https://wikipedia-country.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+			var queryUrl = "https://wiki-region.wmcloud.org/api/v1/region?lang=" + document.getElementById('lang').value + "&titles=" + document.getElementById('page_title').value;
 			$.ajax(queryUrl, {success: render_categories.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
