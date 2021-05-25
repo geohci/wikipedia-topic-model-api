@@ -60,7 +60,7 @@
 			<main id="tool_main">
 				<section class="form">
 					<form action="#misalignment">
-						<div class="cols cols3">
+						<div class="cols cols4">
 							<div class="col col2">
 								{% if lang %}
 								<label class="placeholder"><span class="field_name">Language codes -- e.g., en|fr for English and French</span>
@@ -71,6 +71,14 @@
 									<input type="text" value="" placeholder="Placeholder text" id="langs"/>
 								</label>
 								{% endif %}
+							</div>
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Facet</span>
+									<select name="facets" id="facets">
+										<option value="topic">Topics</option>
+										<option value="geo">Regions</option>
+									</select>
+								</label>
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
@@ -146,7 +154,11 @@
 				$("#misalignment-results").append(table_html);
 				for (var t_idx in data["results"]) {
 					var row = {};
-					row['Topic'] = {"display": '<a href="https://' + langs[0] + '.wikipedia.org/w/index.php?search=articletopic%3A' + data["results"][t_idx]["topic-display"] + '&title=Special%3ASearch&profile=advanced&fulltext=1&ns0=1">' + data["results"][t_idx]["topic-display"] + "</a>", "sort": data["results"][t_idx]["topic"]};
+					if (document.getElementById('facets').value == 'geo') {
+						row['Topic'] = {"display": '<a href="https://en.wikipedia.org/wiki/' + data["results"][t_idx]["topic-display"] + '">' + data["results"][t_idx]["topic-display"] + "</a>", "sort": data["results"][t_idx]["topic"]};
+					} else {
+						row['Topic'] = {"display": '<a href="https://' + langs[0] + '.wikipedia.org/w/index.php?search=articletopic%3A' + data["results"][t_idx]["topic-display"] + '&title=Special%3ASearch&profile=advanced&fulltext=1&ns0=1">' + data["results"][t_idx]["topic-display"] + "</a>", "sort": data["results"][t_idx]["topic"]};
+					}
 					for (var lang in langs) {
 						row[langs[lang]] = {"display": '<span title="' + data["results"][t_idx]["data"][langs[lang]]['num_articles'] + ' articles">' + data["results"][t_idx]["data"][langs[lang]]['misalignment'] + '</span>', "sort": Number(data["results"][t_idx]["data"][langs[lang]]['misalignment']) + 2};
 					}
@@ -179,8 +191,8 @@
 		}
 
 	  	function queryMisalignmentAPI() {
-			//var queryUrl = "https://wiki-topic.toolforge.org/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value;
-			var queryUrl = "http://127.0.0.1:5000/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value;
+			var queryUrl = "https://wiki-topic.toolforge.org/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value + '&facet=' + document.getElementById('facets').value;
+			//var queryUrl = "http://127.0.0.1:5000/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value + '&facet=' + document.getElementById('facets').value;
 			$.ajax(queryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
