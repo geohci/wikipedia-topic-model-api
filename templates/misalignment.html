@@ -179,8 +179,8 @@
 		}
 
 	  	function queryMisalignmentAPI() {
-			// var queryUrl = "https://wiki-topic.toolforge.org/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value;
-			var queryUrl = "http://127.0.0.1:5000/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value;
+			var queryUrl = "https://wiki-topic.toolforge.org/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value;
+			// var queryUrl = "http://127.0.0.1:5000/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value;
 			$.ajax(queryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
