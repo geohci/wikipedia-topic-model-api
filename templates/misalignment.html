@@ -148,7 +148,7 @@
 					var row = {};
 					row['Topic'] = '<a href="https://' + langs[0] + '.wikipedia.org/w/index.php?search=articletopic%3A' + data["results"][t_idx]["topic"] + '&title=Special%3ASearch&profile=advanced&fulltext=1&ns0=1">' + data["results"][t_idx]["topic"] + "</a>";
 					for (var lang in langs) {
-						row[langs[lang]] = {"display": '<span title="' + data["results"][t_idx]["data"][langs[lang]]['num_articles'] + ' articles">' + data["results"][t_idx]["data"][langs[lang]]['misalignment'] + '</span>', "sort": Number(data["results"][t_idx]["data"][langs[lang]]['misalignment'])};
+						row[langs[lang]] = {"display": '<span title="' + data["results"][t_idx]["data"][langs[lang]]['num_articles'] + ' articles">' + data["results"][t_idx]["data"][langs[lang]]['misalignment'] + '</span>', "sort": Number(data["results"][t_idx]["data"][langs[lang]]['misalignment']) + 2};
 					}
 					table_data.push(row);
 				}
@@ -161,13 +161,13 @@
 					"order": [1, 'desc'],
 					"createdRow": function (row, data, index) {
 					    for (var l_idx in langs) {
-							if ( data[langs[l_idx]]['sort'] >= 0.5 ) {
+							if ( Number(data[langs[l_idx]]['sort']) - 2 >= 0.5 ) {
 							    $('td', row).eq(parseInt(l_idx) + 1).addClass("ext-over");
-							} else if ( data[langs[l_idx]]['sort'] >= 0.2 ) {
+							} else if ( Number(data[langs[l_idx]]['sort']) - 2 >= 0.2 ) {
 							    $('td', row).eq(parseInt(l_idx) + 1).addClass("over");
-							} else if ( data[langs[l_idx]]['sort'] <= -0.5 ) {
+							} else if ( Number(data[langs[l_idx]]['sort']) - 2 <= -0.5 ) {
 							    $('td', row).eq(parseInt(l_idx) + 1).addClass("ext-under");
-							} else if ( data[langs[l_idx]]['sort'] <= -0.2 ) {
+							} else if ( Number(data[langs[l_idx]]['sort']) - 2 <= -0.2 ) {
 							    $('td', row).eq(parseInt(l_idx) + 1).addClass("under");
 							} else {
 							    $('td', row).eq(parseInt(l_idx) + 1).addClass("align");
