@@ -48,7 +48,7 @@
 						<p>Topic areas with <span class="ext-over">high misalignment</span> (close to +1) are overproduced, meaning that the existing content is of much higher quality than than would be expected based on the number of pageviews it attracts.</p>
 						<p>Topic areas with <span class="align">neutral misalignment</span> (close to 0) are in alignment, meaning that the existing content is about the quality you would expect -- i.e. high-quality articles receive many pageviews, medium-quality articles receive some pageviews, and low-quality articles receive relatively few pageviews.</p>
 						<p>Topic areas with <span class="ext-under">negative misalignment</span> (close to -1) are underproduced, meaning that the existing content is of much lower quality than than would be expected based on the number of pageviews it attracts.</p>
-						<p>For more information on how these metrics are calculated, see the <a href="https://meta.wikimedia.org/wiki/Research:Prioritization_of_Wikipedia_Articles/Misalignment">meta page</a></p>
+						<p>For more information on how these metrics are calculated, see the <a href="https://meta.wikimedia.org/wiki/Research:Prioritization_of_Wikipedia_Articles/Misalignment">meta page</a>.</p>
 					</div>
 				</div>
 			</header>
@@ -137,7 +137,7 @@
 				var table_data = [];
 				var table_html = '<table id="misalignment-results-table" class="hover compact">';
 				table_html += '<thead><tr><th>Topic</th>';
-				var columns = [{'data': "Topic"}];
+				var columns = [{'data': "Topic", 'render': {'sort': 'sort', 'display':'display'}}];
 				for (var lang in langs) {
 					table_html += '<th>' + langs[lang] + '</th>';
 					columns.push({'data': langs[lang], 'render': {'sort': 'sort', 'display':'display'}});
@@ -146,7 +146,7 @@
 				$("#misalignment-results").append(table_html);
 				for (var t_idx in data["results"]) {
 					var row = {};
-					row['Topic'] = '<a href="https://' + langs[0] + '.wikipedia.org/w/index.php?search=articletopic%3A' + data["results"][t_idx]["topic"] + '&title=Special%3ASearch&profile=advanced&fulltext=1&ns0=1">' + data["results"][t_idx]["topic"] + "</a>";
+					row['Topic'] = {"display": '<a href="https://' + langs[0] + '.wikipedia.org/w/index.php?search=articletopic%3A' + data["results"][t_idx]["topic-display"] + '&title=Special%3ASearch&profile=advanced&fulltext=1&ns0=1">' + data["results"][t_idx]["topic-display"] + "</a>", "sort": data["results"][t_idx]["topic"]};
 					for (var lang in langs) {
 						row[langs[lang]] = {"display": '<span title="' + data["results"][t_idx]["data"][langs[lang]]['num_articles'] + ' articles">' + data["results"][t_idx]["data"][langs[lang]]['misalignment'] + '</span>', "sort": Number(data["results"][t_idx]["data"][langs[lang]]['misalignment']) + 2};
 					}
@@ -158,7 +158,7 @@
 					"searching": false,
 					"scrollY": "800px",
 					"paging": false,
-					"order": [1, 'desc'],
+					"order": [0, 'desc'],
 					"createdRow": function (row, data, index) {
 					    for (var l_idx in langs) {
 							if ( Number(data[langs[l_idx]]['sort']) - 2 >= 0.5 ) {
