@@ -191,7 +191,11 @@
 		}
 
 	  	function queryMisalignmentAPI() {
-			var queryUrl = "https://misalignment.wmcloud.org/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value + '&facet=' + document.getElementById('facets').value;
+			if (document.getElementById('facets').value == 'topic') {
+				var queryUrl = "https://misalignment.wmcloud.org/api/v1/misalignment-topic?lang=" + document.getElementById('langs').value;
+			} else if (document.getElementById('facets').value == 'region') {
+				var queryUrl = "https://misalignment.wmcloud.org/api/v1/misalignment-region?lang=" + document.getElementById('langs').value;
+			}
 			//var queryUrl = "http://127.0.0.1:5000/misalignment/api/v1/topic?lang=" + document.getElementById('langs').value + '&facet=' + document.getElementById('facets').value;
 			$.ajax(queryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
