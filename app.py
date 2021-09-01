@@ -29,8 +29,14 @@ def index():
     lang, title, qid = validate_api_args()
     return render_template('index.html', lang=lang, title=title, qid=qid)
 
+@app.route('/topic')
+def topic():
+    lang, title, qid = validate_api_args()
+    return render_template('topic.html', lang=lang, title=title, qid=qid)
+
+@app.route('/topic-comparison')
 @app.route('/comparison')
-def comparison():
+def topic_comparison():
     lang, title, qid = validate_api_args()
     return render_template('comparison.html', lang=lang, title=title, qid=qid)
 
@@ -38,6 +44,11 @@ def comparison():
 def countries():
     lang, title, qid = validate_api_args()
     return render_template('countries.html', lang=lang, title=title, qid=qid)
+
+@app.route('/quality')
+def quality():
+    lang, title, qid = validate_api_args()
+    return render_template('quality.html', lang=lang, title=title, qid=qid)
 
 @app.route('/misalignment')
 def misalignment():

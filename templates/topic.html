@@ -3,7 +3,7 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Language-agnostic Country Classification</title>
+	<title>Language-agnostic Topic Classification</title>
 	<link rel="shortcut icon" href="./static/favicon.ico">
 	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
@@ -31,7 +31,7 @@
 	<article id="tool_holder">
 		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
 			<header id="tool_header">
-				<h1>Language-agnostic Country Classification</h1>
+				<h1>Language-agnostic Topic Classification</h1>
 				<div class="meta">
 					<div class="disclaimer note">
 						<p>No guarantees are made that this tool will be maintained.</p>
@@ -39,10 +39,12 @@
 							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
 					</div>
 					<div class="description padded--right">
-						<p>This tool can label a Wikipedia article with one or more regions (generally countries) using a single model that can provide predictions for any language edition of Wikipedia.</p>
-						<p>The tool provides region predictions for Wikipedia articles based on their associated Wikidata items and links to other Wikipedia articles.</p>
-						<p>Because it relies on Wikidata items, it is language-agnostic and works for any Wikipedia article.</p>
-						<p>You can test out the tool below with your own article -- e.g., <a href="https://wiki-region.wmcloud.org/api/v1/region?lang=en&titles=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
+						<p>This tool can label a Wikipedia article with one or more <a href="https://www.mediawiki.org/wiki/ORES/Articletopic#Taxonomy">high-level topics</a> using a single model that can provide predictions for any language edition of Wikipedia.</p>
+						<p>The tool provides topic predictions for Wikipedia articles based on their links to other Wikipedia articles (outlinks only).
+							It represents these links as Wikidata items -- e.g., a link to <a href="https://en.wikipedia.org/wiki/Menhaden">en:Menhaden</a> is represented as <a href="https://www.wikidata.org/wiki/Q218526">Q218526</a>.</p>
+						<p>Because it relies on Wikidata items, it is language-agnostic and works for any Wikipedia article.
+							Because it relies on outlinks, it may have little data to go on for new articles that have few links or link to rarely-linked items (see <a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance/All_wikis#Performance_by_Number_of_Outlinks">performance</a>).</p>
+						<p>You can test out the tool below with your own article -- e.g., <a href="https://wikipedia-topic.wmcloud.org/api/v1/topic?lang=en&title=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
 					</div>
 				</div>
 			</header>
@@ -50,10 +52,10 @@
 
 		<div class="separator"></div>
 
-		<section id="countries" class="boxwidth--1-1 padded--left padded--right">
+		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
 			<main id="tool_main">
 				<section class="form">
-					<form action="#countries">
+					<form action="#results">
 						<div class="cols cols3">
 							<div class="col col1">
 								{% if lang %}
@@ -84,16 +86,15 @@
 						</div>
 					</form>
 				</section>
-
 				<section id="results">
 					<div class="cols cols3">
 						<div class="col col3">
-							<section class="text" id="country-results">
+							<section class="text" id="topic-results">
 								<!-- Empty section to hold results -->
 							</section>
 						</div>
 					</div>
-				</section>
+            	</section>
 			</main>
 		</section>
 	</article>
@@ -103,7 +104,7 @@
 			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
 			<ul>
 				<li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
-				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Countries">Meta</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance">Meta</a></li>
 				<li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
 			</ul>
 		</div>
@@ -128,30 +129,33 @@
 				$('*[placeholder]', this).attr('placeholder', '');
 			});
 		});
-
 	</script>
 
 	<script type="text/javascript">
 		$('#btnSubmit').click(function (e) {
-		   e.preventDefault(); queryCountryAPI();
+		   e.preventDefault(); queryTopicAPI();
 		});
 
-	    var render_categories = function(data) {
-			$("#country-results").empty();
+	    var render_results = function(data) {
+			$("#topic-results").empty();
 			if ("Error" in data) {
-				$("#country-results").append("<br><p>Error: " + data["Error"] + "</p>");
+				$("#topic-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
-				$("#country-results").append('<br><h3><a href="https://wikidata.org/wiki/' + data[0]["qid"] + '">' + data[0]["qid"] + '</a></h3>');
-			  	if (data[0]['regions'].length > 0) {
-					$("#country-results").append("<ol>");
-					for (var reg in data[0]['regions']) {
-						$("#country-results").append("<li>" + data[0]['regions'][reg]["region"] + "</li>");
+				$("#topic-results").append('<br><h3><a href="' + data["article"] + '">' + data["article"] + '</a></h3>');
+			  	if (data["results"].length > 0) {
+					$("#topic-results").append("<ol>");
+					for (var cat in data["results"]) {
+						if (data["results"][cat]["score"] >= 0.5) {
+							$("#topic-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						} else {
+							$("#topic-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+						}
 					}
-					$("#country-results").append("</ol>");
+					$("#topic-results").append("</ol>");
 			  	}
 			  	else {
-					$("#country-results").append("<li>No relevant countries predicted.</li>");
+					$("#topic-results").append("<li><No confident topics predicted.</li>");
 			  	}
 			}
 		}
@@ -162,8 +166,8 @@
 		}
 
 
-	  	function queryCountryAPI() {
-			if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
+	  	function queryTopicAPI() {
+	  		if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
 				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=0&origin=*";
 				$.ajax(randomPageQueryURL, {success: update_title.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
@@ -172,8 +176,8 @@
 				  );
 			}
 
-			var queryUrl = "https://wiki-region.wmcloud.org/api/v1/region?lang=" + document.getElementById('lang').value + "&titles=" + document.getElementById('page_title').value;
-			$.ajax(queryUrl, {success: render_categories.bind(this),
+			var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+			$.ajax(queryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
 				  );

@@ -3,16 +3,12 @@
 
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-	<title>Language-Agnostic Topic Classification</title>
+	<title>Language-Agnostic Wikipedia Content Tagging</title>
 	<link rel="shortcut icon" href="./static/favicon.ico">
 	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="./static/style.css" />
-	<style>
-      .above-threshold {color: black;}
-      .below-threshold {color: silver;}
-    </style>
 
 </head>
 
@@ -33,7 +29,7 @@
 		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
 			<header id="tool_header">
 				<!-- Tool name -->
-				<h1>Language-Agnostic Topic Classification</h1>
+				<h1>Language-Agnostic Wikipedia Content Tagging</h1>
 				<div class="meta">
 					<div class="disclaimer note">
 						<p>No guarantees are made that this tool will be maintained.</p>
@@ -41,7 +37,7 @@
 							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
 					</div>
 					<div class="description padded--right">
-						<p>This tool showcases various language-agnostic topic classification models -- i.e. these models can label a Wikipedia article with one or more <a href="https://www.mediawiki.org/wiki/ORES/Articletopic#Taxonomy">high-level topics</a> using a single model that can provide predictions for any language edition of Wikipedia.</p>
+						<p>This tool showcases various language-agnostic content tagging models -- i.e. models that can label any Wikipedia article with one or more tags such as quality, topic, geographic region -- developed by the <a href="https://research.wikimedia.org/">Wikimedia Research</a> team.</p>
 					</div>
 				</div>
 			</header>
@@ -50,195 +46,82 @@
 		<div class="separator"></div>
 
 		<main id="tool_main">
-			<section id="wikidata-model" class="boxwidth--1-1 padded--left padded--right">
-				<h2>Wikidata Topic Classification</h2>
-				<section class="text">
-				  <p>This first experimental API provides topic predictions for Wikipedia articles based on their Wikidata items.</p>
-				  <p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article (with a Wikidata item, which is <a href="https://github.com/martingerlach/coverage-wikipedia-wikidata">almost all of them</a>).</p>
-				  <p>Because it relies on Wikidata items, it has little data to go on with sparse Wikidata items.</p>
-				  <p>You can test out the API below -- for example, with <a href="https://wikidata-topic.wmcloud.org/api/v1/topic?qid=Q72334">Toni Morrison (Q72334)</a>, which will give you a list of most likely topics for the article along with the model's confidence</p>
-				</section>
-				<section class="form">
-					<form action="#wikidata-model">
-						<div class="cols cols3">
-							<div class="col col2">
-								{% if qid %}
-								<label class="placeholder"><span class="field_name">Wikidata ID -- e.g., Q42 for Douglas Adams</span>
-									<input type="text" value="{{qid}}" placeholder="Placeholder text" id="wikidata-id"/>
-								</label>
-								{% else %}
-								<label class="placeholder"><span class="field_name">Wikidata ID -- e.g., Q42 for Douglas Adams</span>
-									<input type="text" value="" placeholder="Placeholder text" id="wikidata-id"/>
-								</label>
-								{% endif %}
+			<div class="cards">
+				<div class="cols cols4">
+					<div class="col col1">
+						<article class="card has--border"><a href="./topic">
+								<div class="img">
+									<figure><img src="https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/526px-Wikipedia-logo-v2.svg.png" alt="Wikipedia globe to symbolize topics" /></figure>
+								</div>
+								<div class="texts">
+									<h3>Topics</h3>
+									<div class="description">
+										<p>Predict which high-level topics -- e.g., Sports, Medicine -- are associated with a given Wikipedia article.</p>
+									</div>
+									<div class="more">More info. &raquo;</div>
+								</div>
+							</a></article><!-- .card -->
+					</div><!-- .col -->
+					<div class="col col1">
+						<article class="card has--border"><a href="./countries">
+								<div class="img">
+									<figure><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/6/6b/Terrestrial_globe.svg/494px-Terrestrial_globe.svg.png" alt="" /></figure>
+								</div>
+								<div class="texts">
+									<h3>Region</h3>
+									<div class="description">
+										<p>Predict which geographic regions -- e.g., United States, Scotland -- are associated with a given Wikipedia article.</p>
+									</div>
+									<div class="more">More info. &raquo;</div>
+								</div>
+							</a></article><!-- .card -->
+					</div><!-- .col -->
+					<div class="col col1">
+						<article class="card has--border"><a href="./misalignment">
+							<div class="img">
+								<figure><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/7d/Data_analytics_WP20.png/617px-Data_analytics_WP20.png" alt="Analytics placeholder" /></figure>
 							</div>
-							<div class="col col1">
-								<span class="field_name"></span>
-								<input type="submit" value="Submit" id="wdBtnSubmit" />
+							<div class="texts">
+								<h3>Misalignment</h3>
+								<div class="description">
+									<p>Explore the misalignment between reader interest and article quality for any given language edition of Wikipedia.</p>
+								</div>
+								<div class="more">More info. &raquo;</div>
 							</div>
-						</div>
-					</form>
-				</section>
-				<!-- Empty section to hold results -->
-				<section class="text" id="wikidata-based-results">
-				</section>
-			</section>
-
-			<section id="wikipedia-model" class="boxwidth--1-1 padded--left padded--right">
-				<h2>Wikipedia Topic Classification</h2>
-				<section class="text">
-					<p>This second experimental API provides topic predictions for Wikipedia articles based on their links to other Wikipedia articles (outlinks only).</p>
-					<p>It represents these links as Wikidata items -- e.g., a link to <a href="https://en.wikipedia.org/wiki/Menhaden">en:Menhaden</a> is represented as <a href="https://www.wikidata.org/wiki/Q218526">Q218526</a>.</p>
-					<p>Because it relies on Wikidata items, it is language-neutral and works for any Wikipedia article. However, unlike the above purely-Wikidata model, this model uses an article's links and will give different predictions depending on the language version of the article and does not require that the article itself have an associated Wikidata item.</p>
-					<p>Because it relies on outlinks, it may have little data to go on for new articles that have few links or link to rarely-linked items (see <a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance/All_wikis#Performance_by_Number_of_Outlinks">performance</a>).</p>
-					<p>You can test out the API below -- for example, with <a href="https://wikipedia-topic.wmcloud.org/api/v1/topic?lang=en&title=Toni_Morrison">Toni Morrison (en)</a></p>
-				</section>
-				<section class="form">
-					<form action="#wikipedia-model">
-						<div class="cols cols3">
-							<div class="col col1">
-								{% if lang %}
-								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
-									<input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
-								</label>
-								{% else %}
-								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
-									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
-								</label>
-								{% endif %}
+						</a></article><!-- .card -->
+					</div><!-- .col -->
+					<div class="col col1">
+						<article class="card has--border"><a href="./quality">
+							<div class="img">
+								<figure><img src="https://upload.wikimedia.org/wikipedia/commons/c/cf/Cscr-featured.png" alt="Star that symbolizes featured content on Wikipedia" /></figure>
 							</div>
-							<div class="col col1">
-								{% if title %}
-								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
-									<input type="text" value="{{title}}" placeholder="Placeholder text" id="page_title"/>
-								</label>
-								{% else %}
-								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
-									<input type="text" value="" placeholder="Placeholder text" id="page_title"/>
-								</label>
-								{% endif %}
+							<div class="texts">
+								<h3>Article Quality</h3>
+								<div class="description">
+									<p>Predict the quality for any Wikipedia article from 0 (no content) to 1 (high quality article for that wiki).</p>
+								</div>
+								<div class="more">More info. &raquo;</div>
 							</div>
-							<div class="col col1">
-								<span class="field_name"></span>
-								<input type="submit" value="Submit" id="wlBtnSubmit" />
-							</div>
-						</div>
-					</form>
-				</section>
-
-				<!-- Empty section to hold results -->
-				<section class="text" id="link-based-results">
-				</section>
-			</section>
+						</a></article><!-- .card -->
+					</div><!-- .col -->
+				</div>
+			</div>
 		</main>
 	</article>
 
 	<footer id="tool_footer">
 		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
-			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<p>Experimental tools developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
 			<ul>
-				<li><a href="https://github.com/geohci/wikidata-topic-model-api">View Source</a></li>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
 				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification">Meta</a></li>
-				<li><a href="https://github.com/geohci/wikidata-topic-model-api#license">License</a></li>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
 			</ul>
 		</div>
 	</footer>
 
 
 	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
-	<script type="text/javascript">
-		$(document).ready(function() {
-			$('form label.placeholder').each(function() {
-				if (!$('input, textarea, select', this).val()) {
-	 				$(this).addClass('off');
-				}
-				$(this).on('focusin', function() {
-					$(this).removeClass('off');
-				});
-				$(this).on('focusout', function() {
-					if (!$('input, textarea, select', this).val()) {
-						$(this).addClass('off');
-					}
-				});
-				$('*[placeholder]', this).attr('placeholder', '');
-			});
-		});
-	</script>
-
-	<script type="text/javascript">
-		$('#wlBtnSubmit').click(function (e) {
-		   e.preventDefault(); queryWikilinkBasedAPI();
-		});
-
-		$('#wdBtnSubmit').click(function (e) {
-		   e.preventDefault(); queryWikidataBasedAPI();
-		});
-
-
-		var render_categories_wd = function(data) {
-			$("#wikidata-based-results").empty();
-			if ("Error" in data) {
-				$("#wikidata-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
-			}
-			else {
-				$("#wikidata-based-results").append('<br><h3><a href="https://wikidata.org/wiki/' + data["qid"] + '">' + data["qid"] + '</a> (' + data["name"] + ')</h3>');
-				if (data["results"].length > 0) {
-					$("#wikidata-based-results").append("<ol>");
-					for (var cat in data["results"]) {
-						if (data["results"][cat]["score"] >= 0.5)  {
-							$("#wikidata-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						} else {
-							$("#wikidata-based-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						}
-					}
-					$("#wikidata-based-results").append("</ol>");
-				}
-				else {
-					$("#wikidata-based-results").append("<li><No confident topics predicted.</li>");
-				}
-			}
-		}
-
-		function queryWikidataBasedAPI() {
-			var queryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&qid=" + document.getElementById('wikidata-id').value;
-			$.ajax(queryUrl, {success: render_categories_wd.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
-							  }
-				  );
-	    }
-
-	    var render_categories_lb = function(data) {
-			$("#link-based-results").empty();
-			if ("Error" in data) {
-				$("#link-based-results").append("<br><p>Error: " + data["Error"] + "</p>");
-			}
-			else {
-				$("#link-based-results").append('<br><h3><a href="' + data["article"] + '">' + data["article"] + '</a></h3>');
-			  	if (data["results"].length > 0) {
-					$("#link-based-results").append("<ol>");
-					for (var cat in data["results"]) {
-						if (data["results"][cat]["score"] >= 0.5) {
-							$("#link-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						} else {
-							$("#link-based-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						}
-					}
-					$("#link-based-results").append("</ol>");
-			  	}
-			  	else {
-					$("#link-based-results").append("<li><No confident topics predicted.</li>");
-			  	}
-			}
-		}
-
-	  	function queryWikilinkBasedAPI() {
-			var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-			$.ajax(queryUrl, {success: render_categories_lb.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
-							  }
-				  );
-	  	}
-	</script>
 
 </body>
 

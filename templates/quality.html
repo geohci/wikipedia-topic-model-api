@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>Language-agnostic Quality Prediction</title>
+    <link rel="shortcut icon" href="./static/favicon.ico">
+    <meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+    <link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+    <link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+    <link href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/datatables/1.10.21/css/jquery.dataTables.min.css" rel="stylesheet" type="text/css">
+    <link rel="stylesheet" href="./static/style.css" />
+
+</head>
+
+<body>
+<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
+
+<div id="origin_bar">
+    <div class="boxwidth--1-1 padded--left padded--right">
+        <a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+    </div>
+</div>
+
+<article id="tool_holder">
+    <div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+        <header id="tool_header">
+            <!-- Tool name -->
+            <h1>Language-agnostic Quality Prediction</h1>
+            <div class="meta">
+                <div class="disclaimer note">
+                    <p>No guarantees are made that this tool will be maintained.</p>
+                    <p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+                        <a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+                </div>
+                <div class="description padded--right">
+                    <p>This tool can predict the quality of a Wikipedia article using a single model that can provide predictions for any language edition of Wikipedia.</p>
+					<p>The tool provides quality predictions for Wikipedia articles based on their length, references, images, and sections. It provides a score that shows the relative quality of the article to other articles in its wiki.</p>
+					<p>Generally, articles without any content would be evaluated as 0 and the highest-quality articles for a language evaluated as 1 with most content between these two extremes.
+                        For more information on how these scores are calculated, see the <a href="https://meta.wikimedia.org/wiki/Research:Prioritization_of_Wikipedia_Articles/Language-Agnostic_Quality">meta page</a>.</p>
+                    <p>You can test out the tool below with your own article -- e.g., <a href="https://misalignment.wmcloud.org/api/v1/quality-article?lang=en&title=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
+                </div>
+            </div>
+        </header>
+    </div>
+
+    <div class="separator"></div>
+
+    <section id="quality" class="boxwidth--1-1 padded--left padded--right">
+        <main id="tool_main">
+            <section class="form">
+                <form action="#quality">
+                    <div class="cols cols3">
+                        <div class="col col1">
+                            {% if lang %}
+                            <label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+                                <input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
+                            </label>
+                            {% else %}
+                            <label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+                                <input type="text" value="" placeholder="Placeholder text" id="lang"/>
+                            </label>
+                            {% endif %}
+                        </div>
+                        <div class="col col1">
+                            {% if title %}
+                            <label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+                                <input type="text" value="{{title}}" placeholder="Placeholder text" id="page_title"/>
+                            </label>
+                            {% else %}
+                            <label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+                                <input type="text" value="" placeholder="Placeholder text" id="page_title"/>
+                            </label>
+                            {% endif %}
+                        </div>
+                        <div class="col col1">
+                            <span class="field_name"></span>
+                            <input type="submit" value="Submit" id="btnSubmit" />
+                        </div>
+                    </div>
+                </form>
+            </section>
+
+            <section id="results">
+                <div class="cols cols3">
+                    <div class="col col3">
+                        <section class="text" id="quality-results">
+                            <!-- Empty section to hold results -->
+                        </section>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </section>
+</article>
+
+<footer id="tool_footer">
+    <div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+        <p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+        <ul>
+            <li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
+            <li><a href="https://meta.wikimedia.org/wiki/Research:Prioritization_of_Wikipedia_Articles/Language-Agnostic_Quality">Meta</a></li>
+            <li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
+        </ul>
+    </div>
+</footer>
+
+
+<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/datatables/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
+
+	</script>
+
+<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); queryQualityAPI();
+		});
+
+	    var render_results = function(data) {
+			$("#quality-results").empty();
+			if ("Error" in data) {
+				$("#quality-results").append("<br><p>Error: " + data["Error"] + "</p>");
+			}
+			else {
+				$("#quality-results").append('<br><h3><a href="https://' + data["lang"] + '.wikipedia.org/wiki/' + data["title"] + '">' + data["lang"] + ":" + data["title"] + '</a></h3>');
+			  	if ("quality" in data) {
+                    $("#quality-results").append("<p>Quality: " + data["quality"] + "</p>");
+			  	}
+			  	else {
+					$("#quality-results").append("<li><No quality score provided.</li>");
+			  	}
+			}
+		}
+
+        var update_title = function(data) {
+			document.getElementById('page_title').value = data['query']['random'][0]['title'];
+			document.getElementById('page_title').parentNode.className = 'placeholder';
+		}
+
+
+	  	function queryQualityAPI() {
+	  	    if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
+				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=0&origin=*";
+				$.ajax(randomPageQueryURL, {success: update_title.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+							  async: false
+							  }
+				  );
+			}
+
+	  	    var queryUrl = "https://misalignment.wmcloud.org/api/v1/quality-article?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+			$.ajax(queryUrl, {success: render_results.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+	  	}
+	</script>
+
+</body>
+
+</html>
