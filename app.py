@@ -40,6 +40,12 @@ def topic_comparison():
     lang, title, qid = validate_api_args()
     return render_template('comparison.html', lang=lang, title=title, qid=qid)
 
+@app.route('/person')
+def person():
+    lang, title, qid = validate_api_args()
+    return render_template('person.html', lang=lang, title=title, qid=qid)
+
+
 @app.route('/countries')
 def countries():
     lang, title, qid = validate_api_args()
