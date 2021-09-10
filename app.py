@@ -40,10 +40,10 @@ def topic_comparison():
     lang, title, qid = validate_api_args()
     return render_template('comparison.html', lang=lang, title=title, qid=qid)
 
-@app.route('/content-tagging')
+@app.route('/article-tagging')
 def content_tagging():
     lang, title, qid = validate_api_args()
-    return render_template('content-tagging.html', lang=lang, title=title, qid=qid)
+    return render_template('article-tagging.html', lang=lang, title=title, qid=qid)
 
 @app.route('/person')
 def person():
