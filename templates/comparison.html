@@ -151,6 +151,12 @@
 		   e.preventDefault(); queryTopicModels();
 		});
 
+		window.onload = function() {
+			if (document.getElementById('lang').value) {
+				queryTopicModels();
+			}
+		}
+
 		var render_categories_wd = function(data) {
 			$("#wikidata-based-results").empty();
 			if ("Error" in data) {

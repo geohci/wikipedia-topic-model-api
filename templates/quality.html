@@ -136,6 +136,13 @@
 		   e.preventDefault(); queryQualityAPI();
 		});
 
+        window.onload = function() {
+			if (document.getElementById('lang').value) {
+				queryQualityAPI();
+			}
+		}
+
+
 	    var render_results = function(data) {
 			$("#quality-results").empty();
 			if ("Error" in data) {

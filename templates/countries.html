@@ -136,6 +136,13 @@
 		   e.preventDefault(); queryCountryAPI();
 		});
 
+		window.onload = function() {
+			if (document.getElementById('lang').value) {
+				queryCountryAPI();
+			}
+		}
+
+
 	    var render_categories = function(data) {
 			$("#country-results").empty();
 			if ("Error" in data) {
