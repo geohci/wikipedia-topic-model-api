@@ -152,13 +152,12 @@
 		var render_page_preview = function(data) {
 			$("#page-preview").empty();
 			var cardHTML = '<a href="https://' + document.getElementById('lang').value + '.wikipedia.org/wiki/' + document.getElementById('page_title').value + '">';
-			cardHTML += '<div class="img">';
-			var imgSrc = "https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/526px-Wikipedia-logo-v2.svg.png";
+			// var imgSrc = "https://upload.wikimedia.org/wikipedia/en/thumb/8/80/Wikipedia-logo-v2.svg/526px-Wikipedia-logo-v2.svg.png";
 			if ("thumbnail" in data) {
 				imgSrc = data["thumbnail"]["source"];
+				cardHTML += '<div class="img"><figure><img src="' + imgSrc + '" /></figure></div>';
 			}
-			cardHTML += '<figure><img src="' + imgSrc + '" /></figure>';
-			cardHTML += '</div><div class="texts"><h3>' + document.getElementById('page_title').value + '</h3>';
+			cardHTML += '<div class="texts"><h3>' + document.getElementById('page_title').value + '</h3>';
 			if ("extract_html" in data) {
 				cardHTML += data["extract_html"];
 			}
