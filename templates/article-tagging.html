@@ -149,6 +149,12 @@
 		   e.preventDefault(); queryTaggingAPIs();
 		});
 
+		window.onload = function() {
+			if (document.getElementById('lang').value) {
+				queryTaggingAPIs();
+			}
+		}
+
 		var render_page_preview = function(data) {
 			$("#page-preview").empty();
 			var cardHTML = '<a href="https://' + document.getElementById('lang').value + '.wikipedia.org/wiki/' + document.getElementById('page_title').value + '">';
