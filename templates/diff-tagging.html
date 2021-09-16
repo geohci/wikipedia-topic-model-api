@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Language-agnostic Edit Diff Tagging</title>
+	<link rel="shortcut icon" href="./static/favicon.ico">
+	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="./static/style.css" />
+	<link rel="stylesheet" href="https://www.mediawiki.org/w/load.php?modules=mediawiki.diff.styles&only=styles">
+</head>
+
+<body>
+	<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
+
+	<div id="origin_bar">
+		<div class="boxwidth--1-1 padded--left padded--right">
+			<a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+		</div>
+	</div>
+
+	<article id="tool_holder">
+		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+			<header id="tool_header">
+				<h1>Language-agnostic Edit Diff Tagging</h1>
+				<div class="meta">
+					<div class="disclaimer note">
+						<p>No guarantees are made that this tool will be maintained.</p>
+						<p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+					</div>
+					<div class="description padded--right">
+						<p>This tool showcases all the different tags that can be automatically determined (generally via basic heuristics) for a given Wikipedia edit diff.</p>
+					</div>
+				</div>
+			</header>
+		</div>
+
+		<div class="separator"></div>
+
+		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
+			<main id="tool_main">
+				<section class="form">
+					<form action="#results">
+						<div class="cols cols3">
+							<div class="col col1">
+								{% if lang %}
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
+								</label>
+								{% endif %}
+							</div>
+							<div class="col col1">
+								{% if title %}
+								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
+									<input type="text" value="{{title}}" placeholder="Placeholder text" id="revid"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
+									<input type="text" value="" placeholder="Placeholder text" id="revid"/>
+								</label>
+								{% endif %}
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" id="btnSubmit" />
+							</div>
+						</div>
+					</form>
+				</section>
+				<section id="results">
+					<div class="cards">
+						<div class="cols cols3">
+							<div class="col col2">
+								<article class="card" id="wikitext-diff">
+
+											<!-- Empty section to hold edit diff -->
+
+
+								</article>
+							</div><!-- .col -->
+							<div class="col col1">
+								<section class="text" id="action-results">
+								<!-- Empty section to hold results -->
+								</section>
+							</div><!-- .col -->
+						</div>
+					</div>
+				</section>
+			</main>
+		</section>
+	</article>
+
+	<footer id="tool_footer">
+		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<ul>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
+				<li><a href="#">Meta</a></li>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
+			</ul>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); queryTaggingAPIs();
+		});
+
+		window.onload = function() {
+			if (document.getElementById('lang').value) {
+				queryTaggingAPIs();
+			}
+		}
+
+		var render_diff_preview = function(data) {
+			$("#wikitext-diff").empty();
+			var cardHTML = '<a href="https://' + document.getElementById('lang').value + '.wikipedia.org/w/index.php?diff=' + data["compare"]["torevid"] + '&oldid='  + data["compare"]["fromrevid"] + '&title=' + data["compare"]["fromtitle"] + '&diffmode=source">';
+			cardHTML += '<div class="texts"><h3>' + document.getElementById('lang').value + ":" + data["compare"]["fromtitle"] + '</h3>';
+			if ("body" in data["compare"]) {
+				cardHTML += '<table class="diff"><colgroup><col class="diff-marker"><col class="diff-content"><col class="diff-marker"><col class="diff-content"></colgroup><tbody>';
+				cardHTML += data["compare"]["body"];
+				cardHTML += '</tbody></table>';
+			}
+			cardHTML += '</div><br><div class="more">More info. &raquo;</div></a>';
+			$("#wikitext-diff").append(cardHTML);
+		}
+
+	    var render_results = function(data) {
+			$("#action-results").empty();
+			if ("error" in data) {
+				$("#topic-results").append("<br><p>Error: " + data["error"] + "</p>");
+			}
+			else {
+				$("#action-results").append('<br><h4>Edit Types</h4>');
+			  	if (data["results"].length > 0) {
+					for (var cat in data["results"]) {
+						$("#action-results").append("<li>" + data["results"][cat]["action"] + " (" + data["results"][cat]["count"] + ")</li>");
+					}
+			  	}
+			  	else {
+					$("#action-results").append("<p><No confident topics predicted.</p>");
+			  	}
+			}
+		}
+
+		var update_revid = function(data) {
+			document.getElementById('revid').value = data['query']['pages'][0]['lastrevid'];
+			document.getElementById('revid').parentNode.className = 'placeholder';
+		}
+
+
+	  	function queryTaggingAPIs() {
+	  		if (document.getElementById('lang').value && !document.getElementById('revid').value) {
+	  			// gets latest revision ID from a random article
+				var randomRevidQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&generator=random&grnnamespace=0&grnlimit=1&prop=info&grnfilterredir=nonredirects&format=json&formatversion=2&origin=*";
+				$.ajax(randomRevidQueryURL, {success: update_revid.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+							  async: false
+							  }
+				  );
+			}
+			var editDiffURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=compare&fromrev=" + document.getElementById('revid').value + "&torelative=prev&format=json&formatversion=2";
+			$.ajax(editDiffURL, {success: render_diff_preview.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+
+			var actionsQueryUrl = "https://edit-types.wmcloud.org/api/v1/actions?lang=" + document.getElementById('lang').value + "&revid=" + document.getElementById('revid').value;
+			$.ajax(actionsQueryUrl, {success: render_results.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
+	  	}
+	</script>
+
+</body>
+</html>
