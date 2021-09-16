@@ -190,7 +190,7 @@
 							  }
 				  );
 			}
-			var editDiffURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=compare&fromrev=" + document.getElementById('revid').value + "&torelative=prev&format=json&formatversion=2";
+			var editDiffURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=compare&fromrev=" + document.getElementById('revid').value + "&torelative=prev&format=json&formatversion=2&origin=*";
 			$.ajax(editDiffURL, {success: render_diff_preview.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
