@@ -10,6 +10,10 @@
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="./static/style.css" />
 	<link rel="stylesheet" href="https://www.mediawiki.org/w/load.php?modules=mediawiki.diff.styles&only=styles">
+	<style>
+      .above-threshold {color: black;}
+      .below-threshold {color: silver;}
+    </style>
 </head>
 
 <body>
@@ -165,7 +169,10 @@
 				$("#action-results").append('<br><h4>Edit Types</h4>');
 			  	if (data["results"].length > 0) {
 					for (var cat in data["results"]) {
-						$("#action-results").append("<li>" + data["results"][cat]["action"] + " (" + data["results"][cat]["count"] + ")</li>");
+					if (data["results"][cat]["count"] > 0) {
+						$("#action-results").append("<li class='above-threshold'>" + data["results"][cat]["action"] + " (" + data["results"][cat]["count"] + ")</li>");
+					} else {
+						$("#action-results").append("<li class='below-threshold'>" + data["results"][cat]["action"] + " (" + data["results"][cat]["count"] + ")</li>");
 					}
 			  	}
 			  	else {
