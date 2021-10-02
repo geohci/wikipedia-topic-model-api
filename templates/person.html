@@ -152,7 +152,7 @@
 			  	if (data["results"].length > 0) {
 					$("#topic-results").append("<ol>");
 					for (var cat in data["results"]) {
-						$("#topic-results").append("<li class='above-threshold'>" + data["results"][cat]["lbl"] + "</li>");
+						$("#topic-results").append("<li class='above-threshold'>" + data["results"][cat]["lbl"] + " (" + data["results"][cat]["support"] + ")</li>");
 					}
 					$("#topic-results").append("</ol>");
 			  	}

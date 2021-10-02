@@ -233,7 +233,7 @@
 			  	} else {
 					if (data["results"].length > 0) {
 						for (var cat in data["results"]) {
-							$("#person-results").append("<li class='above-threshold'>" + data["results"][cat]["lbl"] + "</li>");
+							$("#person-results").append("<li class='above-threshold'>" + data["results"][cat]["lbl"] + " (" + data["results"][cat]["support"] + ")</li>");
 						}
 					}
 					if (data["unmapped"].length > 0) {
