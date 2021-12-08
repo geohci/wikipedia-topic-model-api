@@ -47,7 +47,7 @@
 
 		<div class="separator"></div>
 
-		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
+		<section id="actions" class="boxwidth--1-1 padded--left padded--right">
 			<main id="tool_main">
 				<section class="form">
 					<form action="#results">
@@ -163,21 +163,22 @@
 	    var render_results = function(data) {
 			$("#action-results").empty();
 			if ("error" in data) {
-				$("#topic-results").append("<br><p>Error: " + data["error"] + "</p>");
+				$("#action-results").append("<br><p>Error: " + data["error"] + "</p>");
 			}
 			else {
 				$("#action-results").append('<br><h4>Edit Types</h4>');
-			  	if (data["results"].length > 0) {
-					for (var cat in data["results"]) {
-						if (data["results"][cat]["count"] > 0) {
-							$("#action-results").append("<li class='above-threshold'>" + data["results"][cat]["action"] + " (" + data["results"][cat]["count"] + ")</li>");
-						} else {
-							$("#action-results").append("<li class='below-threshold'>" + data["results"][cat]["action"] + " (" + data["results"][cat]["count"] + ")</li>");
-						}
+			  	if (Object.keys(data["results"]).length > 0) {
+					for (var et in data["results"]) {
+					    var list_item = "<li class='above-threshold'>" + et + "<ul>";
+					    for (var ct in data["results"][et]) {
+					    	list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+					    }
+						list_item +=  "</ul></li>";
+						$("#action-results").append(list_item);
 					}
 			  	}
 			  	else {
-					$("#action-results").append("<p><No confident topics predicted.</p>");
+					$("#action-results").append("<p><No edit types detected.</p>");
 			  	}
 			}
 		}
@@ -210,6 +211,8 @@
 							  }
 				  );
 	  	}
+
+
 	</script>
 
 </body>
