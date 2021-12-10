@@ -48,7 +48,7 @@ def content_tagging():
 @app.route('/diff-tagging')
 def diff_tagging():
     lang, title, qid = validate_api_args()
-    return render_template('diff-tagging.html', lang=lang, title=title, qid=qid)
+    return render_template('diff-tagging.html', lang=lang, revid=title, qid=qid)
 
 @app.route('/person')
 def person():
@@ -76,6 +76,13 @@ def validate_lang(lang):
 def validate_qid(qid):
     return re.match('^Q[0-9]+$', qid)
 
+def valildate_revid(revid):
+    try:
+        int(revid)
+        return True
+    except (ValueError, TypeError):
+        return False
+
 def validate_api_args():
     lang = None
     if 'lang' in request.args:
@@ -85,6 +92,9 @@ def validate_api_args():
     title = None
     if 'title' in request.args:
         title = request.args['title'].replace('_', ' ')
+    elif 'revid' in request.args:
+        if valildate_revid(request.args['revid']):
+            title = request.args['revid']
 
     qid = None
     if 'qid' in request.args:

@@ -40,6 +40,7 @@
 					</div>
 					<div class="description padded--right">
 						<p>This tool showcases all the different tags that can be automatically determined (generally via basic heuristics) for a given Wikipedia edit diff.</p>
+						<p>It is under development as a few known issues: labeling category/image edits as also text edits and missing nested changes -- e.g., references added within a template.</p>
 					</div>
 				</div>
 			</header>
@@ -64,9 +65,9 @@
 								{% endif %}
 							</div>
 							<div class="col col1">
-								{% if title %}
+								{% if revid %}
 								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
-									<input type="text" value="{{title}}" placeholder="Placeholder text" id="revid"/>
+									<input type="text" value="{{revid}}" placeholder="Placeholder text" id="revid"/>
 								</label>
 								{% else %}
 								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
@@ -109,7 +110,7 @@
 			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
 			<ul>
 				<li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
-				<li><a href="#">Meta</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:Wikipedia_Edit_Types">Meta</a></li>
 				<li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
 			</ul>
 		</div>
