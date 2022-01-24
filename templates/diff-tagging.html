@@ -40,7 +40,7 @@
 					</div>
 					<div class="description padded--right">
 						<p>This tool showcases all the different tags that can be automatically determined (generally via basic heuristics) for a given Wikipedia edit diff.</p>
-						<p>It is under development and has a few known issues: labeling category/image edits as also text edits and missing nested changes -- e.g., references added within a template.</p>
+						<p>It is under development and has a <a href="https://github.com/geohci/edit-types/issues">few known issues</a>.</p>
 					</div>
 				</div>
 			</header>
@@ -148,6 +148,17 @@
 			}
 		}
 
+		var generate_permalink = function() {
+			var result_url = 'https://wiki-topic.toolforge.org/diff-tagging';
+			if (document.getElementById('lang').value) {
+				result_url = result_url + '?lang=' + document.getElementById('lang').value;
+				if (document.getElementById('revid').value) {
+					result_url = result_url + '&revid=' + document.getElementById('revid').value;
+				}
+			}
+			return '<a href="' + result_url + '">Result link</a>';
+		}
+
 		var render_diff_preview = function(data) {
 			$("#wikitext-diff").empty();
 			var cardHTML = '<a href="https://' + document.getElementById('lang').value + '.wikipedia.org/w/index.php?diff=' + data["compare"]["torevid"] + '&oldid='  + data["compare"]["fromrevid"] + '&title=' + data["compare"]["fromtitle"] + '&diffmode=source">';
@@ -182,6 +193,7 @@
 					$("#action-results").append("<p><No edit types detected.</p>");
 			  	}
 			}
+			$("#action-results").append('<br><p>Seems wrong? Leave feedback at <a href="https://meta.wikimedia.org/wiki/Research_talk:Wikipedia_Edit_Types">Meta</a> or <a href="https://github.com/geohci/edit-types/issues">Github</a>. Here is a link to this result: ' + generate_permalink() + '</p>');
 		}
 
 		var update_revid = function(data) {
