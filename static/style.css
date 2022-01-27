@@ -416,6 +416,10 @@ h6 {
 	width: 25%;
 }
 
+#tool_main .cols6 .col1 {
+	width: 16.66%;
+}
+
 #tool_main form label {
 	display: block;
 }
@@ -769,6 +773,7 @@ body.js #tool_main form label.placeholder.off .field_name {
 		width: 100%;
 	}
 
+    #tool_main .cols6 .col1,
 	#tool_main .cols3 .col2,
 	#tool_main .cols3 .col1,
 	#tool_main .cols4 .col1,
@@ -808,6 +813,7 @@ body.js #tool_main form label.placeholder.off .field_name {
 	}
 
 	#tool_main .cols2 .col1,
+	#tool_main .cols6 .col1,
 	#tool_main .cols3 .col1,
 	#tool_main .cols3 .col2,
 	#tool_main .cols4 .col1,
