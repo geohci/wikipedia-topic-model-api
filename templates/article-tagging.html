@@ -188,7 +188,7 @@
 					}
 			  	}
 			  	else {
-					$("#topic-results").append("<p><No confident topics predicted.</p>");
+					$("#topic-results").append("<p>No confident topics predicted.</p>");
 			  	}
 			}
 		}
@@ -216,7 +216,7 @@
 			  	    }
 			  	}
 			  	else {
-					$("#quality-results").append("<p><No quality score provided.</p>");
+					$("#quality-results").append("<p>No quality score provided.</p>");
 			  	}
 			}
 		}
@@ -229,7 +229,7 @@
 			else {
 				$("#person-results").append('<br><h4><a href="./person?lang=' + document.getElementById('lang').value + '&title=' + document.getElementById('page_title').value + '">Occupation</a></h4>');
 				if ((data["results"].length == 0) && (data["unmapped"].length == 0)) {
-					$("#person-results").append("<p><No occupations assigned on Wikidata.</p>");
+					$("#person-results").append("<p>No occupations assigned on Wikidata.</p>");
 			  	} else {
 					if (data["results"].length > 0) {
 						for (var cat in data["results"]) {
