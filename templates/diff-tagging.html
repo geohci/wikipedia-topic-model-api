@@ -174,24 +174,77 @@
 
 	    var render_results = function(data) {
 			$("#action-results").empty();
+			var text_categories = ['Text', 'Word', 'Punctuation', 'Whitespace'];
+			var context_categories = ['Paragraph', 'Sentence']  // Section
 			if ("error" in data) {
 				$("#action-results").append("<br><p>Error: " + data["error"] + "</p>");
-			}
-			else {
-				$("#action-results").append('<br><h4>Edit Types</h4>');
-			  	if (Object.keys(data["results"]).length > 0) {
+			} else if (Object.keys(data["results"]).length > 0) {
+				var found_node = false;
+				var found_text = false;
+				var found_context = false;
+				for (var et in data["results"]) {
+					if (text_categories.includes(et)) {
+						found_text = true;
+					} else if (context_categories.includes(et)) {
+						found_context = true;
+					} else {
+						found_node = true;
+					}
+				}
+				if (found_node || found_text || found_context) {
+					$("#action-results").append('<br><h4>Edit Types</h4>');
+				}
+				if (found_node) {
+					$("#action-results").append('<h5>Node Edits</h5>');
 					for (var et in data["results"]) {
-					    var list_item = "<li class='above-threshold'>" + et + "<ul>";
-					    for (var ct in data["results"][et]) {
-					    	list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
-					    }
-						list_item +=  "</ul></li>";
-						$("#action-results").append(list_item);
+						if (!text_categories.includes(et) && !context_categories.includes(et)) {
+							var list_item = "<li class='above-threshold'>" + et + "<ul>";
+							for (var ct in data["results"][et]) {
+								list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+							}
+							list_item +=  "</ul></li>";
+							$("#action-results").append(list_item);
+						}
+					}
+				}
+				if (found_text) {
+					if (found_node) {
+						$("#action-results").append('<br><h5>Text Edits</h5>');
+					} else {
+						$("#action-results").append('<h5>Text Edits</h5>');
+					}
+					for (var et_idx in text_categories) {
+						var et = text_categories[et_idx];
+						if (et in data["results"]) {
+							var list_item = "<li class='above-threshold'>" + et + "<ul>";
+							for (var ct in data["results"][et]) {
+								list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+							}
+							list_item +=  "</ul></li>";
+							$("#action-results").append(list_item);
+						}
 					}
 			  	}
-			  	else {
-					$("#action-results").append("<p>No edit types detected.</p>");
+			  	if (found_context) {
+					if (found_node || found_text) {
+						$("#action-results").append('<br><h5>Context</h5>');
+					} else {
+						$("#action-results").append('<h5>Context</h5>');
+					}
+					for (var et_idx in context_categories) {
+						var et = context_categories[et_idx];
+						if (et in data["results"]) {
+							var list_item = "<li class='above-threshold'>" + et + "<ul>";
+							for (var ct in data["results"][et]) {
+								list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+							}
+							list_item +=  "</ul></li>";
+							$("#action-results").append(list_item);
+						}
+					}
 			  	}
+			} else {
+				$("#action-results").append("<p>No edit types detected.</p>");
 			}
 			$("#action-results").append('<br><p>Seems wrong? Leave feedback at <a href="https://meta.wikimedia.org/wiki/Research_talk:Wikipedia_Edit_Types">Meta</a> or <a href="https://github.com/geohci/edit-types/issues">Github</a>. Here is a link to this result: ' + generate_permalink() + '</p>');
 		}
