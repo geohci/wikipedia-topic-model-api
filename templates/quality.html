@@ -90,6 +90,9 @@
                         <section class="text" id="quality-results">
                             <!-- Empty section to hold results -->
                         </section>
+                        <section class="text" id="quality-features">
+                            <!-- Empty section to hold feature data -->
+                        </section>
                     </div>
                 </div>
             </section>
@@ -145,30 +148,42 @@
 
 	    var render_results = function(data) {
 			$("#quality-results").empty();
+			$("#quality-features").empty();
 			if ("Error" in data) {
 				$("#quality-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
 				$("#quality-results").append('<br><h3><a href="https://' + data["lang"] + '.wikipedia.org/wiki/' + data["title"] + '">' + data["lang"] + ":" + data["title"] + '</a></h3>');
 			  	if ("quality" in data) {
+			  	    $("#quality-results").append("<h4>Quality: Score (Class)</h4>");
 			  	    if (data["quality"] <= 0.167) {
-			  	        $("#quality-results").append("<p>Quality: " + data["quality"].toFixed(3) + " (Stub)</p>");
+			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Stub)</li>");
 			  	    } else if (data["quality"] <= 0.333) {
-			  	        $("#quality-results").append("<p>Quality: " + data["quality"].toFixed(3) + " (Start)</p>");
+			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Start)</li>");
 			  	    } else if (data["quality"] <= 0.5) {
-                        $("#quality-results").append("<p>Quality: " + data["quality"].toFixed(3) + " (C-class)</p>");
+                        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (C-class)</li>");
 			  	    } else if (data["quality"] <= 0.667) {
-			  	        $("#quality-results").append("<p>Quality: " + data["quality"].toFixed(3) + " (B-class)</p>");
+			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (B-class)</li>");
 			  	    } else if (data["quality"] <= 0.833) {
-			  	        $("#quality-results").append("<p>Quality: " + data["quality"].toFixed(3) + " (Good)</p>");
+			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Good)</li>");
 			  	    } else if (data["quality"] <= 1) {
-			  	        $("#quality-results").append("<p>Quality: " + data["quality"].toFixed(3) + " (Featured)</p>");
+			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Featured)</li>");
 			  	    }
+			  	    render_features(data);
 			  	}
 			  	else {
 					$("#quality-results").append("<li>No quality score provided.</li>");
 			  	}
 			}
+		}
+
+		var render_features = function(data) {
+			if ("features" in data) {
+				$("#quality-features").append('<br><h4>Feature: Count (Relative Completeness)</h4>');
+				for (var feat in data["features"]["raw"]) {
+				    $("#quality-features").append("<li>" + feat + ": " + data["features"]["raw"][feat] + " (" + Math.round(data["features"]["normalized"][feat] * 100) + "%)</li>");
+                }
+            }
 		}
 
         var update_title = function(data) {
@@ -187,7 +202,7 @@
 				  );
 			}
 
-	  	    var queryUrl = "https://misalignment.wmcloud.org/api/v1/quality-article?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
+	  	    var queryUrl = "https://misalignment.wmcloud.org/api/v1/quality-article-features?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			$.ajax(queryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
