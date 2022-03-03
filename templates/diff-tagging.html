@@ -175,7 +175,7 @@
 	    var render_results = function(data) {
 			$("#action-results").empty();
 			var text_categories = ['Text', 'Word', 'Punctuation', 'Whitespace'];
-			var context_categories = ['Paragraph', 'Sentence']  // Section
+			var context_categories = ['Paragraph', 'Sentence', 'Section'];
 			if ("error" in data) {
 				$("#action-results").append("<br><p>Error: " + data["error"] + "</p>");
 			} else if (Object.keys(data["results"]).length > 0) {
