@@ -156,15 +156,15 @@
 				$("#quality-results").append('<br><h3><a href="https://' + data["lang"] + '.wikipedia.org/wiki/' + data["title"] + '">' + data["lang"] + ":" + data["title"] + '</a></h3>');
 			  	if ("quality" in data) {
 			  	    $("#quality-results").append("<h4>Quality: Score (Class)</h4>");
-			  	    if (data["quality"] <= 0.167) {
+			  	    if (data["quality"] <= 0.42) {
 			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Stub)</li>");
-			  	    } else if (data["quality"] <= 0.333) {
+			  	    } else if (data["quality"] <= 0.56) {
 			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Start)</li>");
-			  	    } else if (data["quality"] <= 0.5) {
+			  	    } else if (data["quality"] <= 0.73) {
                         $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (C-class)</li>");
-			  	    } else if (data["quality"] <= 0.667) {
+			  	    } else if (data["quality"] <= 0.85) {
 			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (B-class)</li>");
-			  	    } else if (data["quality"] <= 0.833) {
+			  	    } else if (data["quality"] <= 0.93) {
 			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Good)</li>");
 			  	    } else if (data["quality"] <= 1) {
 			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Featured)</li>");
