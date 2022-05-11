@@ -201,15 +201,15 @@
 			else {
 				$("#quality-results").append('<br><h4><a href="./quality?lang=' + document.getElementById('lang').value + '&title=' + document.getElementById('page_title').value + '">Quality</a></h4>');
 			  	if ("quality" in data) {
-			  	    if (data["quality"] <= 0.167) {
+			  	    if (data["quality"] <= 0.42) {
 			  	        $("#quality-results").append("<li>Quality: " + data["quality"].toFixed(3) + " (Stub)</li>");
-			  	    } else if (data["quality"] <= 0.333) {
+			  	    } else if (data["quality"] <= 0.56) {
 			  	        $("#quality-results").append("<li>Quality: " + data["quality"].toFixed(3) + " (Start)</li>");
-			  	    } else if (data["quality"] <= 0.5) {
+			  	    } else if (data["quality"] <= 0.73) {
                         $("#quality-results").append("<li>Quality: " + data["quality"].toFixed(3) + " (C-class)</li>");
-			  	    } else if (data["quality"] <= 0.667) {
+			  	    } else if (data["quality"] <= 0.85) {
 			  	        $("#quality-results").append("<li>Quality: " + data["quality"].toFixed(3) + " (B-class)</li>");
-			  	    } else if (data["quality"] <= 0.833) {
+			  	    } else if (data["quality"] <= 0.93) {
 			  	        $("#quality-results").append("<li>Quality: " + data["quality"].toFixed(3) + " (Good)</li>");
 			  	    } else if (data["quality"] <= 1) {
 			  	        $("#quality-results").append("<li>Quality: " + data["quality"].toFixed(3) + " (Featured)</li>");
