@@ -70,11 +70,6 @@ def quality():
     lang, title, qid = validate_api_args()
     return render_template('quality.html', lang=lang, title=title, qid=qid)
 
-@app.route('/misalignment')
-def misalignment():
-    langs = '|'.join([lang for lang in request.args.get('lang', '').lower().split('|') if validate_lang(lang)])
-    return render_template('misalignment.html', lang=langs)
-
 def validate_lang(lang):
     return lang in WIKIPEDIA_LANGUAGE_CODES
 

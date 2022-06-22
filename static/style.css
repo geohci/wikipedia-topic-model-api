@@ -408,12 +408,20 @@ h6 {
 	width: 50%;
 }
 
+#tool_main .cols5 .col2 {
+	width: 40%;
+}
+
 #tool_main .cols3 .col1 {
 	width: 33.3333%;
 }
 
 #tool_main .cols4 .col1 {
 	width: 25%;
+}
+
+#tool_main .cols5 .col1 {
+	width: 20%;
 }
 
 #tool_main .cols6 .col1 {
@@ -814,6 +822,7 @@ body.js #tool_main form label.placeholder.off .field_name {
 
 	#tool_main .cols2 .col1,
 	#tool_main .cols6 .col1,
+	#tool_main .cols5 .col1,
 	#tool_main .cols3 .col1,
 	#tool_main .cols3 .col2,
 	#tool_main .cols4 .col1,
