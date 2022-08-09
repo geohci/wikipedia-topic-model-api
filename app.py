@@ -50,11 +50,6 @@ def diff_tagging():
     lang, title, qid = validate_api_args()
     return render_template('diff-tagging.html', lang=lang, revid=title, qid=qid)
 
-@app.route('/media-changes')
-def media_changes():
-    lang, title, qid = validate_api_args()
-    return render_template('media-changes.html', lang=lang, revid=title, qid=qid)
-
 @app.route('/person')
 def person():
     lang, title, qid = validate_api_args()
