@@ -83,13 +83,7 @@
 					</form>
 				</section>
 				<section id="results">
-					<div class="cols cols4">
-						<div class="col col1">
-							<section class="text" id="wikidata-based-results">
-							<!-- Empty section to hold results -->
-							</section>
-						</div>
-
+					<div class="cols cols3">
 						<div class="col col1">
 							<section class="text" id="link-based-results">
 							<!-- Empty section to hold results -->
@@ -154,31 +148,6 @@
 		window.onload = function() {
 			if (document.getElementById('lang').value) {
 				queryTopicModels();
-			}
-		}
-
-		var render_categories_wd = function(data) {
-			$("#wikidata-based-results").empty();
-			if ("Error" in data) {
-				$("#wikidata-based-results").append("<br><h3>Wikidata-based</h3><p>Error: " + data["Error"] + "</p>");
-			}
-			else {
-				var wikidataURL = 'https://wikidata.org/wiki/' + data["qid"];
-				$("#wikidata-based-results").append('<br><h3>Wikidata-based</h3><p><a href="' + wikidataURL + '">' + wikidataURL + '</a></p>');
-				if (data["results"].length > 0) {
-					$("#wikidata-based-results").append("<ol>");
-					for (var cat in data["results"]) {
-						if (data["results"][cat]["score"] >= 0.5) {
-							$("#wikidata-based-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						} else {
-							$("#wikidata-based-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
-						}
-					}
-					$("#wikidata-based-results").append("</ol>");
-				}
-				else {
-					$("#wikidata-based-results").append("<li>No confident topics predicted.</li>");
-				}
 			}
 		}
 
@@ -288,17 +257,12 @@
 							  }
 				  );
 			}
-			var wikidataQueryUrl = "https://wikidata-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			var wikilinkQueryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			// https://www.mediawiki.org/wiki/API:Cross-site_requests#JSONP_usage
 			var revidQueryUrl = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&prop=revisions&titles=" + document.getElementById('page_title').value + "&rvlimit=1&rvprop=ids&formatversion=2&format=json&origin=*"
 			var groundtruthQueryUrl = "https://topic-groundtruth.wmcloud.org/api/v1/topic?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 		    $.ajax(revidQueryUrl, {success: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)},
 							  error: function(jqxmlhr, status, error){query_ores(jqxmlhr, document.getElementById('lang').value, revidQueryUrl)}
-							  }
-				  );
-			$.ajax(wikidataQueryUrl, {success: render_categories_wd.bind(this),
-							  error: render_categories_wd.bind(this)
 							  }
 				  );
 			$.ajax(wikilinkQueryUrl, {success: render_categories_wl.bind(this),
