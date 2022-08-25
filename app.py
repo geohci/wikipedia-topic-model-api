@@ -45,10 +45,16 @@ def content_tagging():
     lang, title, qid = validate_api_args()
     return render_template('article-tagging.html', lang=lang, title=title, qid=qid)
 
+@app.route('/html-parsing')
+def html_parsing():
+    lang, title, qid = validate_api_args()
+    return render_template('html-parsing.html', lang=lang, title=title, qid=qid)
+
 @app.route('/diff-tagging')
 def diff_tagging():
     lang, title, qid = validate_api_args()
     return render_template('diff-tagging.html', lang=lang, revid=title, qid=qid)
+    
 
 @app.route('/person')
 def person():
