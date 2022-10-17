@@ -10,10 +10,6 @@
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="./static/style.css" />
 	<link rel="stylesheet" href="https://www.mediawiki.org/w/load.php?modules=mediawiki.diff.styles&only=styles">
-	<style>
-      .above-threshold {color: black;}
-      .below-threshold {color: #72777d;}
-    </style>
 </head>
 
 <body>
@@ -42,6 +38,7 @@
 						<p>This tool showcases all the different tags that can be automatically determined (generally via basic heuristics) for a given Wikipedia edit diff.</p>
 						<p>It is under development and has a <a href="https://github.com/geohci/edit-types/issues">few known issues</a> but should work for any Wikipedia language.</p>
 						<p>If you don't have a favorite revision ID, just leave that field blank and the tool will select a random one.</p>
+						<p>If you select the "Detailed" Diff Type, then mousing over the resulting Node Edits summaries will reveal additional details.</p>
 					</div>
 				</div>
 			</header>
@@ -53,28 +50,32 @@
 			<main id="tool_main">
 				<section class="form">
 					<form action="#results">
-						<div class="cols cols3">
+						<div class="cols cols4">
 							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
 								{% if lang %}
-								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
 									<input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
-								</label>
 								{% else %}
-								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
 									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
-								</label>
 								{% endif %}
+								</label>
 							</div>
 							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
 								{% if revid %}
-								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
 									<input type="text" value="{{revid}}" placeholder="Placeholder text" id="revid"/>
-								</label>
 								{% else %}
-								<label class="placeholder"><span class="field_name">Revision ID -- e.g., 979988715</span>
 									<input type="text" value="" placeholder="Placeholder text" id="revid"/>
-								</label>
 								{% endif %}
+								</label>
+							</div>
+							<div class="col col1">
+								<label class="placeholder"><span class="field_name">Diff Type</span>
+	                                <select name="diff-type" id="diff-type">
+										<option value="simple">Simple</option>
+										<option value="details">Detailed</option>
+									</select>
+								</label>
 							</div>
 							<div class="col col1">
 								<span class="field_name"></span>
@@ -180,11 +181,11 @@
 			var context_categories = ['Paragraph', 'Sentence', 'Section'];
 			if ("error" in data) {
 				$("#action-results").append("<br><p>Error: " + data["error"] + "</p>");
-			} else if (Object.keys(data["results"]).length > 0) {
+			} else if (Object.keys(data["summary"]).length > 0) {
 				var found_node = false;
 				var found_text = false;
 				var found_context = false;
-				for (var et in data["results"]) {
+				for (var et in data["summary"]) {
 					if (text_categories.includes(et)) {
 						found_text = true;
 					} else if (context_categories.includes(et)) {
@@ -198,11 +199,61 @@
 				}
 				if (found_node) {
 					$("#action-results").append('<h5>Node Edits</h5>');
-					for (var et in data["results"]) {
+					for (var et in data["summary"]) {
 						if (!text_categories.includes(et) && !context_categories.includes(et)) {
-							var list_item = "<li class='above-threshold'>" + et + "<ul>";
-							for (var ct in data["results"][et]) {
-								list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+							var tooltip = "";
+							if (document.getElementById('diff-type').value == 'details') {
+								var ecount = 0;
+								for (var nidx in data["details"]["nodes"]) {
+									var node = data["details"]["nodes"][nidx];
+									if (node["type"] == et) {
+									    ecount += 1;
+									    if (node["changes"].length > 0) {
+									    	if (node["name"]) {
+										    	tooltip += `${ecount}) ${node['name']} (${node["edittype"]})\n`;
+											} else {
+												tooltip += `${ecount}) ${et} (${node["edittype"]})\n`;
+											}
+									    } else {
+									    	if (node["name"]) {
+										    	tooltip += `${ecount}) ${node['name']} (${node["edittype"]}): no impactful changes detected\n`;
+											} else {
+												tooltip += `${ecount}) ${et} (${node["edittype"]}): no impactful changes detected\n`;
+											}
+									    }
+										for (var cidx in node["changes"]) {
+											var chg = node["changes"][cidx]
+											tooltip += `${ecount}.${(parseInt(cidx) + 1)}) `;
+											if (chg["prev"] && chg["curr"]) {
+												tooltip += `Changed ${chg['change-type']}: `;
+												if (chg["change-type"] == "parameter") {
+													tooltip += `${chg["prev"][0]}=${chg["prev"][1]} --> ${chg["curr"][0]}=${chg["curr"][1]}\n`;
+												} else {
+													tooltip += `${chg["prev"]} --> ${chg["curr"]}\n`;
+												}
+											} else if (chg["prev"]) {
+												tooltip += `Removed ${chg["change-type"]}: `;
+												if (chg["change-type"] == "parameter") {
+													tooltip += `${chg["prev"][0]}=${chg["prev"][1]}\n`;
+												} else {
+													tooltip += `${chg["prev"]}\n`;
+												}
+											} else if (chg["curr"]) {
+												tooltip += `Inserted ${chg["change-type"]}: `;
+												if (chg["change-type"] == "parameter") {
+													tooltip += `${chg["curr"][0]}=${chg["curr"][1]}\n`;
+												} else {
+													tooltip += `${chg["curr"]}\n`;
+												}
+											}  // ignore moves
+										}
+									}
+								}
+							}
+							tooltip = tooltip.replaceAll('"', '&quot;');
+							var list_item = '<li title="' + tooltip + '">' + et + "<ul>";
+							for (var ct in data["summary"][et]) {
+								list_item += "<li>" + ct + " (" + data["summary"][et][ct] + ")</li>";
 							}
 							list_item +=  "</ul></li>";
 							$("#action-results").append(list_item);
@@ -217,10 +268,10 @@
 					}
 					for (var et_idx in text_categories) {
 						var et = text_categories[et_idx];
-						if (et in data["results"]) {
-							var list_item = "<li class='above-threshold'>" + et + "<ul>";
-							for (var ct in data["results"][et]) {
-								list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+						if (et in data["summary"]) {
+							var list_item = "<li>" + et + "<ul>";
+							for (var ct in data["summary"][et]) {
+								list_item += "<li>" + ct + " (" + data["summary"][et][ct] + ")</li>";
 							}
 							list_item +=  "</ul></li>";
 							$("#action-results").append(list_item);
@@ -235,10 +286,10 @@
 					}
 					for (var et_idx in context_categories) {
 						var et = context_categories[et_idx];
-						if (et in data["results"]) {
-							var list_item = "<li class='above-threshold'>" + et + "<ul>";
-							for (var ct in data["results"][et]) {
-								list_item += "<li>" + ct + " (" + data["results"][et][ct] + ")</li>";
+						if (et in data["summary"]) {
+							var list_item = "<li>" + et + "<ul>";
+							for (var ct in data["summary"][et]) {
+								list_item += "<li>" + ct + " (" + data["summary"][et][ct] + ")</li>";
 							}
 							list_item +=  "</ul></li>";
 							$("#action-results").append(list_item);
@@ -273,7 +324,11 @@
 							  }
 				  );
 
-			var actionsQueryUrl = "https://edit-types.wmcloud.org/diff-summary?lang=" + document.getElementById('lang').value + "&revid=" + document.getElementById('revid').value;
+			if (document.getElementById('diff-type').value == 'details') {
+				var actionsQueryUrl = "https://edit-types.wmcloud.org/diff-details?lang=" + document.getElementById('lang').value + "&revid=" + document.getElementById('revid').value;
+			} else {
+				var actionsQueryUrl = "https://edit-types.wmcloud.org/diff-summary?lang=" + document.getElementById('lang').value + "&revid=" + document.getElementById('revid').value;
+			}
 			$.ajax(actionsQueryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
