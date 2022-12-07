@@ -54,7 +54,11 @@ def html_parsing():
 def diff_tagging():
     lang, title, qid = validate_api_args()
     return render_template('diff-tagging.html', lang=lang, revid=title, qid=qid)
-    
+
+@app.route('/diff-tagging-debug')
+def diff_tagging_debug():
+    lang, title, qid = validate_api_args()
+    return render_template('diff-tagging-tmp.html', lang=lang, revid=title, qid=qid)
 
 @app.route('/person')
 def person():
