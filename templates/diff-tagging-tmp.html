@@ -329,7 +329,7 @@
 							  }
 				  );
 
-			var actionsQueryUrl = "http://127.0.0.1:5000/diff-debug?lang=" + document.getElementById('lang').value + "&revid=" + document.getElementById('revid').value;
+			var actionsQueryUrl = "https://edit-types.wmcloud.org/diff-debug?lang=" + document.getElementById('lang').value + "&revid=" + document.getElementById('revid').value;
 			$.ajax(actionsQueryUrl, {success: render_results.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
