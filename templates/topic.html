@@ -145,18 +145,20 @@
 
 	    var render_results = function(data) {
 			$("#topic-results").empty();
-			if ("Error" in data) {
-				$("#topic-results").append("<br><p>Error: " + data["Error"] + "</p>");
+			if ("error" in data) {
+				$("#topic-results").append("<br><p>" + data["error"] + "</p>");
 			}
-			else {
-				$("#topic-results").append('<br><h3><a href="' + data["article"] + '">' + data["article"] + '</a></h3>');
-			  	if (data["results"].length > 0) {
+			if ("prediction" in data) {
+				let article = data["prediction"]["article"];
+				let results = data["prediction"]["results"];
+				$("#topic-results").append('<br><h3><a href="' + article + '">' + article + '</a></h3>');
+			  	if (results.length > 0) {
 					$("#topic-results").append("<ol>");
-					for (var cat in data["results"]) {
-						if (data["results"][cat]["score"] >= 0.5) {
-							$("#topic-results").append("<li class='above-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+					for (var cat in results) {
+						if (results[cat]["score"] >= 0.5) {
+							$("#topic-results").append("<li class='above-threshold'>" + results[cat]["topic"] + " (" + Math.round(results[cat]["score"]*100) + "%)</li>");
 						} else {
-							$("#topic-results").append("<li class='below-threshold'>" + data["results"][cat]["topic"] + " (" + Math.round(data["results"][cat]["score"]*100) + "%)</li>");
+							$("#topic-results").append("<li class='below-threshold'>" + results[cat]["topic"] + " (" + Math.round(results[cat]["score"]*100) + "%)</li>");
 						}
 					}
 					$("#topic-results").append("</ol>");
@@ -173,7 +175,7 @@
 		}
 
 
-	  	function queryTopicAPI() {
+	  	async function queryTopicAPI() {
 	  		if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
 				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=0&origin=*";
 				$.ajax(randomPageQueryURL, {success: update_title.bind(this),
@@ -183,11 +185,22 @@
 				  );
 			}
 
-			var queryUrl = "https://wikipedia-topic.wmcloud.org/api/v1/topic?threshold=0.15&lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-			$.ajax(queryUrl, {success: render_results.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
-							  }
-				  );
+			let queryUrl = "https://api.wikimedia.org/service/lw/inference/v1/models/outlink-topic-model:predict";
+			let data = {"page_title": document.getElementById('page_title').value,
+						"lang": document.getElementById('lang').value,
+						"threshold": 0.15};
+			let headers = {'Api-User-Agent': 'isaacj@wikimedia.org - wiki-topic toolforge'};
+			try {
+				const response = await fetch(queryUrl, {
+					method: "POST",
+					headers: headers,
+					body: JSON.stringify(data),
+					});
+				const result = await response.json();
+				render_results(result);
+			} catch (error) {
+				console.error("Error:", error);
+			}
 	  	}
 	</script>
 
