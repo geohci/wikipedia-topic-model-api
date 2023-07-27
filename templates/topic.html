@@ -43,8 +43,9 @@
 						<p>The tool provides topic predictions for Wikipedia articles based on their links to other Wikipedia articles (outlinks only).
 							It represents these links as Wikidata items -- e.g., a link to <a href="https://en.wikipedia.org/wiki/Menhaden">en:Menhaden</a> is represented as <a href="https://www.wikidata.org/wiki/Q218526">Q218526</a>.</p>
 						<p>Because it relies on Wikidata items, it is language-agnostic and works for any Wikipedia article.
-							Because it relies on outlinks, it may have little data to go on for new articles that have few links or link to rarely-linked items (see <a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance/All_wikis#Performance_by_Number_of_Outlinks">performance</a>).</p>
+							Because it relies on outlinks, it may have little data to go on for new articles that have few links or link to rarely-linked items (see <a href="https://meta.wikimedia.org/wiki/Machine_learning_models/Production/Language_agnostic_link-based_article_topic">the model card</a> for more details).</p>
 						<p>You can test out the tool below with your own article -- e.g., <a href="https://wikipedia-topic.wmcloud.org/api/v1/topic?lang=en&title=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
+						<p>See <a href="https://gitlab.wikimedia.org/isaacj/miscellaneous-wikimedia/-/blob/master/topic-classification/querying_for_topics.ipynb">this notebook</a> for more examples of how to query the model.</p>
 					</div>
 				</div>
 			</header>
