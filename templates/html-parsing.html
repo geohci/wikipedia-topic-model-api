@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="./static/style.css" />
 </head>
 
@@ -110,6 +111,8 @@
 
 
 	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$('form label.placeholder').each(function() {
@@ -140,6 +143,34 @@
 			}
 		}
 
+		$( function() {
+			$( "#page_title" ).autocomplete({
+				source: function( request, response ) {
+					$.ajax( {
+						url: "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php",
+						data: {
+							action: "opensearch",
+							search: request.term,
+							limit: 5,
+							namespace: 0,
+							format: "json",
+							origin: "*"
+						},
+						success: function(data) {
+							response($.map( data[1], function( item ) {
+								return {
+									label: item,
+									value: item
+								}
+							}));
+						}
+					} );
+				},
+				minLength: 2,
+				delay: 300  // milliseconds
+			} );
+		});
+
 		var generate_permalink = function() {
 			var result_url = 'https://wiki-topic.toolforge.org/html-parsing';
 			if (document.getElementById('lang').value) {
@@ -153,7 +184,7 @@
 
 		var render_article_preview = function() {
 			$("#article-iframe").empty();
-			var iframeHTML = '<iframe title="Wikipedia article queried" src="https://' + document.getElementById('lang').value + '.m.wikipedia.org/wiki/' + document.getElementById('page_title').value + '" style="position: relative; height: 500px; width: 100%;"></iframe>';
+			var iframeHTML = '<iframe title="Wikipedia article queried" src="https://' + document.getElementById('lang').value + '.m.wikipedia.org/wiki/' + document.getElementById('page_title').value + '" style="position: relative; height: 800px; width: 100%; border: solid"></iframe>';
 			$("#article-iframe").append(iframeHTML);
 		}
 

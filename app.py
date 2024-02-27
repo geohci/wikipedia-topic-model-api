@@ -97,6 +97,8 @@ def validate_api_args():
     title = None
     if 'title' in request.args:
         title = request.args['title'].replace('_', ' ')
+    elif 'page_title' in request.args:
+        title = request.args['page_title'].replace('_', ' ')
     elif 'revid' in request.args:
         if valildate_revid(request.args['revid']):
             title = request.args['revid']
