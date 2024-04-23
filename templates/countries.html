@@ -42,7 +42,7 @@
 						<p>This tool can label a Wikipedia article with one or more regions (generally countries) using a single model that can provide predictions for any language edition of Wikipedia.</p>
 						<p>The tool provides region predictions for Wikipedia articles based on their associated Wikidata items and links to other Wikipedia articles.</p>
 						<p>Because it relies on Wikidata items, it is language-agnostic and works for any Wikipedia article.</p>
-						<p>You can test out the tool below with your own article -- e.g., <a href="https://wiki-region.wmcloud.org/api/v1/region?lang=en&titles=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
+						<p>You can test out the tool below with your own article -- e.g., <a href="https://wiki-region.wmcloud.org/regions?lang=en&titles=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
 					</div>
 				</div>
 			</header>
@@ -149,11 +149,11 @@
 				$("#country-results").append("<br><p>Error: " + data["Error"] + "</p>");
 			}
 			else {
-				$("#country-results").append('<br><h3><a href="https://wikidata.org/wiki/' + data[0]["qid"] + '">' + data[0]["qid"] + '</a></h3>');
-			  	if (data[0]['regions'].length > 0) {
+				$("#country-results").append('<br><h3><a href="https://wikidata.org/wiki/' + data["qid"] + '">' + data["qid"] + '</a></h3>');
+			  	if (data['countries'].length > 0) {
 					$("#country-results").append("<ol>");
-					for (var reg in data[0]['regions']) {
-						$("#country-results").append("<li>" + data[0]['regions'][reg]["region"] + "</li>");
+					for (var reg in data['countries']) {
+						$("#country-results").append("<li>" + data['countries'][reg] + "</li>");
 					}
 					$("#country-results").append("</ol>");
 			  	}
@@ -179,7 +179,7 @@
 				  );
 			}
 
-			var queryUrl = "https://wiki-region.wmcloud.org/api/v1/region?lang=" + document.getElementById('lang').value + "&titles=" + document.getElementById('page_title').value;
+			var queryUrl = "https://wiki-region.wmcloud.org/regions?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
 			$.ajax(queryUrl, {success: render_categories.bind(this),
 							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
 							  }
