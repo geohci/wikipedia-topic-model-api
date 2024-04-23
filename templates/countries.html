@@ -8,6 +8,7 @@
 	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
 	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
 	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css">
 	<link rel="stylesheet" href="./static/style.css" />
 	<style>
       .above-threshold {color: black;}
@@ -40,9 +41,9 @@
 					</div>
 					<div class="description padded--right">
 						<p>This tool can label a Wikipedia article with one or more regions (generally countries) using a single model that can provide predictions for any language edition of Wikipedia.</p>
-						<p>The tool provides region predictions for Wikipedia articles based on their associated Wikidata items and links to other Wikipedia articles.</p>
-						<p>Because it relies on Wikidata items, it is language-agnostic and works for any Wikipedia article.</p>
-						<p>You can test out the tool below with your own article -- e.g., <a href="https://wiki-region.wmcloud.org/regions?lang=en&titles=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
+						<p>The tool provides region predictions for Wikipedia articles based on their associated Wikidata items.</p>
+						<p>Because it relies on Wikidata items, it is language-agnostic and works for any Wikipedia article (with a Wikidata item).</p>
+						<p>You can test out the tool below with your own article -- e.g., <a href="https://wiki-region.wmcloud.org/regions?lang=en&title=Toni_Morrison">Toni Morrison (en)</a> -- or leave the title field blank for a random article.</p>
 					</div>
 				</div>
 			</header>
@@ -110,7 +111,8 @@
 	</footer>
 
 
-	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.5.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
 	<script type="text/javascript">
 		$(document).ready(function() {
 			$('form label.placeholder').each(function() {
@@ -141,6 +143,34 @@
 				queryCountryAPI();
 			}
 		}
+
+		$( function() {
+			$( "#page_title" ).autocomplete({
+				source: function( request, response ) {
+					$.ajax( {
+						url: "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php",
+						data: {
+							action: "opensearch",
+							search: request.term,
+							limit: 5,
+							namespace: 0,
+							format: "json",
+							origin: "*"
+						},
+						success: function(data) {
+							response($.map( data[1], function( item ) {
+								return {
+									label: item,
+									value: item
+								}
+							}));
+						}
+					} );
+				},
+				minLength: 2,
+				delay: 300  // milliseconds
+			} );
+		});
 
 
 	    var render_categories = function(data) {
