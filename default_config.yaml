@@ -8,4 +8,4 @@ DEBUG: False
 JSON_SORT_KEYS: False
 
 # UA to be used by
-# CUSTOM_UA: "wiki-topic (toolforge) -- <your-email-address>"
+CUSTOM_UA: "wiki-topic (toolforge) -- isaac@wikimedia.org"

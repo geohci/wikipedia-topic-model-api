@@ -1,10 +1,13 @@
 # Many thanks to: https://wikitech.wikimedia.org/wiki/Help:Toolforge/My_first_Flask_OAuth_tool
+import json
 import os
+import random
 import re
 import yaml
 
 from flask import Flask, jsonify, render_template, request
 from flask_cors import CORS
+import requests
 
 app = Flask(__name__)
 
@@ -109,3 +112,100 @@ def validate_api_args():
             qid = request.args['qid'].upper()
 
     return lang, title, qid
+
+@app.route('/wikiproject-topic')
+def wikiproject_topic():
+    _, _, qid = validate_api_args()
+
+    wikibase_url = "https://www.wikidata.org/w/api.php"
+    # https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=Q15304953&property=P921&format=json&formatversion=2
+    main_subject_params = {"action":"wbgetclaims",
+                           "entity":qid,
+                           "property":"P921",
+                           "format":"json",
+                           "formatversion":2
+                           }
+    response = requests.get(wikibase_url, params=main_subject_params, headers={'User-Agent': app.config['CUSTOM_UA']})
+    claims = response.json().get("claims", {}).get("P921", [])
+    main_subjects = []
+    for claim in claims:
+        claim_value = claim.get("mainsnak", {}).get("datavalue", {}).get("value", {}).get("id", "")
+        if validate_qid(claim_value):
+            main_subjects.append(claim_value)
+
+    if main_subjects:
+        print(main_subjects)
+        # https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q385967&props=sitelinks&format=json&formatversion=2
+        sitelinks_params = {"action":"wbgetentities",
+                            "ids":"|".join(main_subjects),
+                            "property":"P921",
+                            "format":"json",
+                            "formatversion":2}
+        response = requests.get(wikibase_url, params=sitelinks_params, headers={'User-Agent': app.config['CUSTOM_UA']})
+        pages = []
+        pages_per_ms = 5  # keep at most 5 per main subject
+        wikis_to_skip = {"commonswiki", "metawiki", "wikidatawiki"}
+        entities = response.json().get("entities", {})
+        for item in entities:
+            item_pages = {}
+            for wiki in entities[item].get("sitelinks", {}):
+                if wiki.endswith("wiki") and wiki not in wikis_to_skip:
+                    lang = wiki.replace("wiki", "")
+                    title = entities[item]["sitelinks"][wiki].get("title")
+                    if lang and title:
+                        item_pages[lang] = title
+            if len(item_pages) > pages_per_ms:
+                to_keep = list(item_pages)
+                random.shuffle(to_keep)
+                # sets to True if English not available (so don't need to manually add it)
+                # otherwise will be False if English available and not randomly added in
+                # the next for loop.
+                en_included = 'en' not in item_pages
+                for lang in to_keep[:pages_per_ms]:
+                    pages.append((lang, item_pages[lang]))
+                    if lang == 'en':
+                        en_included = True
+                # if english was available but not included, switch it in
+                if not en_included:
+                    pages[-1] = ('en', item_pages['en'])
+            else:
+                for lang, title in item_pages.items():
+                    pages.append((lang, title))
+
+        if pages:
+            print(pages)
+            inference_url = 'https://api.wikimedia.org/service/lw/inference/v1/models/outlink-topic-model:predict'
+            headers = {
+                    'Api-User-Agent': app.config['CUSTOM_UA'],
+                    'Content-type': 'application/json'
+                }
+            topics = {}
+            num_predictions = 0
+            for lang, title in pages:
+                data = {"page_title": title.replace(" ", "_"), "lang": lang, "threshold":0.0}
+                try:
+                    response = requests.post(inference_url, headers=headers, data=json.dumps(data)).json()
+                    print(response)
+                    predictions = response.get("prediction", {}).get("results", [])
+                    if predictions:
+                        num_predictions += 1
+                        for topic in predictions:
+                            topics[topic["topic"]] = topics.get(topic["topic"], 0) + topic["score"]
+                except Exception:
+                    continue
+
+            results = []
+            threshold = 0
+            for t in sorted(topics, key=topics.get, reverse=True):
+                average_score = topics[t] / num_predictions
+                if average_score >= threshold:
+                    results.append({t:average_score})
+                else:
+                    break
+            return jsonify(results)
+        
+        else:
+            return jsonify({"error": f"No Wikipedia articles for the following main subjects: {', '.join([f'https://www.wikidata.org/wiki/{q}' for q in main_subjects])}"})
+    
+    else:
+        return jsonify({"error": f"no main subjects for https://www.wikidata.org/wiki/{qid}#P921"})
