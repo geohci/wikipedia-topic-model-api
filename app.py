@@ -1,5 +1,6 @@
 # Many thanks to: https://wikitech.wikimedia.org/wiki/Help:Toolforge/My_first_Flask_OAuth_tool
 import json
+import math
 import os
 import random
 import re
@@ -209,3 +210,154 @@ def wikiproject_topic():
     
     else:
         return jsonify({"error": f"no main subjects for https://www.wikidata.org/wiki/{qid}#P921"})
+    
+
+@app.route('/maybe-add-this')
+def recommend_things():
+    lang = None
+    if 'lang' in request.args:    
+        lang = request.args['lang'].lower()
+
+    title = None
+    if 'title' in request.args:
+        title = request.args['title'].replace('_', ' ')
+    elif 'page_title' in request.args:
+        title = request.args['page_title'].replace('_', ' ')
+    
+    rec_type = None
+    if 'rec_type' in request.args:
+        rec_type = request.args['rec_type']
+
+    pages_to_check = 10
+
+    if lang and title and rec_type:
+        # https://en.wikipedia.org/w/api.php?action=query&generator=search&format=json&gsrnamespace=0&gsrwhat=title&gsrsearch=morelike:Wayne_McDaniel&prop=categories&clprop=hidden&cllimit=max
+        base_url = f"https://{lang}.wikipedia.org/w/api.php"
+        params = {"action":"query",
+                  "generator":"search",
+                  "gsrnamespace":0,
+                  "gsrwhat":"text",
+                  "gsrsearch":f"morelike:{title}", 
+                  "gsrlimit":pages_to_check,                 
+                  "format":"json",
+                  "formatversion":2
+                  }
+        if rec_type == 'categories':
+            params["prop"] = "categories"
+            params["cllimit"] = "max"
+            params["clshow"] = "!hidden"
+            generator_fn = page_to_categories
+        elif rec_type == 'templates':
+            params["prop"] = "templates"
+            params["tlnamespace"] = 10
+            params["tllimit"] = "max"
+            generator_fn = page_to_templates
+        elif rec_type == 'sections':
+            params["prop"] = "revisions"
+            params["rvprop"] = "content"
+            params["rvslots"] = "main"
+            generator_fn = page_to_sections
+
+        # TODO: tf-idf (normalize counts by how popular a given template/category is overall)
+        # category usage: https://en.wikipedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Ships_built_in_Kiel|Category:Ships_built_in_Germany&format=json&formatversion=2
+        # template usage: https://linkcount.toolforge.org/api/?page=Template:Infobox_body_of_water&project=en.wikipedia.org&namespaces=0
+        # nothing for sections but I think tf-idf less important there
+
+        response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
+        entity_counts = {}
+        for page in response.json().get("query", {}).get("pages", []):
+            for entity in generator_fn(page):
+                entity_counts[entity] = entity_counts.get(entity, 0) + 1
+
+        for k in ['generator', 'gsrnamespace', 'gsrwhat', 'gsrsearch', 'gsrlimit']:
+            params.pop(k)
+        params['titles'] = title.replace("_", " ")
+        try:
+            response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']}).json()
+            groundtruth = set([e for e in generator_fn(response["query"]["pages"][0])])
+        except Exception:
+            print("No groundtruth.")
+            groundtruth = set()
+            
+        if rec_type == 'categories':
+            overall_usage = category_idf(list(entity_counts.keys()), lang)
+            # https://en.wikipedia.org/w/api.php?action=query&meta=siteinfo&siprop=statistics&format=json&formatversion=2
+            base_url = f"https://{lang}.wikipedia.org/w/api.php"
+            params = {"action":"query",
+                      "meta":"siteinfo",
+                      "siprop":"statistics",
+                      "format":"json",
+                      "formatversion":2
+                      }
+            response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
+            total_page_count = response.json().get("query", {}).get("statistics", {}).get("articles", 0)
+            print(total_page_count)
+            sort_key = 'tf-idf'
+            
+        else:
+            overall_usage = {}
+            total_page_count = 0
+            sort_key = 'pages-using'
+
+        recommendations = []
+        for e in sorted(entity_counts, key=entity_counts.get, reverse=True):
+            term_count = entity_counts[e]
+            tf = term_count / pages_to_check
+            doc_count = overall_usage.get(e)
+            try:
+                document_frequency = doc_count / total_page_count
+                idf = math.log10(1 / document_frequency)
+            except Exception:
+                idf = 0
+            recommendations.append({'rec':e, 'pages-using':term_count, 'tf-idf':tf * idf, 'already-present': e in groundtruth})
+
+        recommendations = sorted(recommendations, key=lambda x: x[sort_key], reverse=True)
+
+        result = {'lang':lang, 'title':title, 'rec-type':rec_type, 'pages-checked':pages_to_check,
+                  'recommendations': recommendations}
+
+        return jsonify(result)
+    else:
+        return jsonify({"error": f"missing lang, title, or rec_type (categories, templates, sections)"})
+    
+def page_to_categories(page):
+    for cat in page.get('categories', []):
+        yield cat['title']
+
+def page_to_templates(page):
+    for temp in page.get('templates', []):
+        if '/' not in temp["title"]:
+            yield temp['title']
+
+def page_to_sections(page):
+    try:
+        wikitext = page['revisions'][0]['slots']['main']['content']
+        for heading in re.findall('={2,}(.*?)={2,}', wikitext):
+            yield heading.strip()
+    except Exception:
+        pass
+
+def category_idf(categories, lang):
+    # category usage: https://en.wikipedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Ships_built_in_Kiel|Category:Ships_built_in_Germany&format=json&formatversion=2
+    base_url = f"https://{lang}.wikipedia.org/w/api.php"
+    categories_per_api_call = 50
+    category_idf = {}
+    for i in range(0, len(categories), categories_per_api_call):
+        params = {"action":"query",
+                  "prop":"categoryinfo",
+                  "titles":"|".join(categories[i:i+categories_per_api_call]),
+                  "format":"json",
+                  "formatversion":2
+                  }
+        
+        response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
+        print(response.json())
+        for page in response.json().get("query", {}).get("pages", []):
+            category = page.get('title')
+            pages = page.get('categoryinfo', {}).get('pages', 0)
+            subcats = page.get('categoryinfo', {}).get('subcats', 0)
+            # prefer categories with fewer subcategories -- i.e. maximally specific
+            idf = pages * (subcats + 1)
+            category_idf[category] = idf
+
+    return category_idf
