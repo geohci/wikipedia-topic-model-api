@@ -38,6 +38,11 @@ def topic():
     lang, title, qid = validate_api_args()
     return render_template('topic.html', lang=lang, title=title, qid=qid)
 
+@app.route('/topic-prototype')
+def topic_prototype():
+    lang, title, qid = validate_api_args()
+    return render_template('topic-prototype.html', lang=lang, title=title, qid=qid)
+
 @app.route('/topic-comparison')
 @app.route('/comparison')
 def topic_comparison():
@@ -257,11 +262,7 @@ def recommend_things():
             params["rvprop"] = "content"
             params["rvslots"] = "main"
             generator_fn = page_to_sections
-
-        # TODO: tf-idf (normalize counts by how popular a given template/category is overall)
-        # category usage: https://en.wikipedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Ships_built_in_Kiel|Category:Ships_built_in_Germany&format=json&formatversion=2
-        # template usage: https://linkcount.toolforge.org/api/?page=Template:Infobox_body_of_water&project=en.wikipedia.org&namespaces=0
-        # nothing for sections but I think tf-idf less important there
+        
 
         response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
         entity_counts = {}
@@ -291,10 +292,23 @@ def recommend_things():
                       }
             response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
             total_page_count = response.json().get("query", {}).get("statistics", {}).get("articles", 0)
-            print(total_page_count)
             sort_key = 'tf-idf'
-            
+        elif rec_type == "templates":
+            # TODO: this takes forever because so many templates and each call can be kinda slow -- trim maybe somehow?
+            overall_usage = template_idf(list(entity_counts.keys()), lang)
+            # https://en.wikipedia.org/w/api.php?action=query&meta=siteinfo&siprop=statistics&format=json&formatversion=2
+            base_url = f"https://{lang}.wikipedia.org/w/api.php"
+            params = {"action":"query",
+                      "meta":"siteinfo",
+                      "siprop":"statistics",
+                      "format":"json",
+                      "formatversion":2
+                      }
+            response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
+            total_page_count = response.json().get("query", {}).get("statistics", {}).get("articles", 0)
+            sort_key = 'tf-idf'
         else:
+            # sections -- tfidf both essentially impossible and way less useful so skip
             overall_usage = {}
             total_page_count = 0
             sort_key = 'pages-using'
@@ -341,7 +355,7 @@ def category_idf(categories, lang):
     # category usage: https://en.wikipedia.org/w/api.php?action=query&prop=categoryinfo&titles=Category:Ships_built_in_Kiel|Category:Ships_built_in_Germany&format=json&formatversion=2
     base_url = f"https://{lang}.wikipedia.org/w/api.php"
     categories_per_api_call = 50
-    category_idf = {}
+    category_count = {}
     for i in range(0, len(categories), categories_per_api_call):
         params = {"action":"query",
                   "prop":"categoryinfo",
@@ -351,13 +365,27 @@ def category_idf(categories, lang):
                   }
         
         response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
-        print(response.json())
         for page in response.json().get("query", {}).get("pages", []):
             category = page.get('title')
             pages = page.get('categoryinfo', {}).get('pages', 0)
             subcats = page.get('categoryinfo', {}).get('subcats', 0)
             # prefer categories with fewer subcategories -- i.e. maximally specific
-            idf = pages * (subcats + 1)
-            category_idf[category] = idf
+            count = pages * (subcats + 1)
+            category_count[category] = count
 
-    return category_idf
+    return category_count
+
+def template_idf(templates, lang):
+    # template usage: https://linkcount.toolforge.org/api/?page=Template:Infobox_body_of_water&project=en.wikipedia.org&namespaces=0
+    base_url = "https://linkcount.toolforge.org/api/"
+    template_count = {}
+    for t in templates:
+        params = {"page":t,
+                  "project":f"{lang}.wikipedia.org",
+                  "namespaces":0
+                  }
+        response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']}).json()
+        # we want both direct and indirect (via redirects)
+        template_count[t] = response.get('transclusions', {}).get('all', 0)
+
+    return template_count

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>Language-agnostic Topic Classification</title>
+	<link rel="shortcut icon" href="./static/favicon.ico">
+	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="./static/style.css" />
+	<style>
+      .above-threshold {color: black;}
+      .below-threshold {color: #72777d;}
+    </style>
+
+</head>
+
+<body>
+	<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
+
+	<div id="origin_bar">
+		<div class="boxwidth--1-1 padded--left padded--right">
+			<a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+		</div>
+	</div>
+
+	<article id="tool_holder">
+		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+			<header id="tool_header">
+				<h1>Language-agnostic Topic Classification (V2)</h1>
+				<div class="meta">
+					<div class="disclaimer note">
+						<p>No guarantees are made that this tool will be maintained.</p>
+						<p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+					</div>
+					<div class="description padded--right">
+						<p>This tool is a new prototype for labeling a Wikipedia article with one or more high-level topics using a single model that can provide predictions for any language edition of Wikipedia.
+							It expands on previous models by splitting the <a href="https://wiki-topic.toolforge.org/topic">single links-based model approach</a> into more detailed sub-models. 
+							Specifically, this tool specifically pulls together predictions from a variety of sources:
+						</p>
+						<p> -- Topics: an updated version of the <a href="https://www.mediawiki.org/wiki/ORES/Articletopic#Taxonomy">original topic taxonomy</a> (based on article links).</p>
+						<p> -- <a href="https://meta.wikimedia.org/wiki/Machine_learning_models/Proposed/Article_country">Countries</a>: region predictions (based on Wikidata claims, categories, and article links).</p>
+						<p> -- Taxons: is the article a plant/animal/fungus species (based on Wikidata ontology).</p>
+						<p> -- Person: is the article a biography and, if so, what is the person's gender (based on Wikidata claims).</p>
+						<p> -- List/Disambig: articles that are list or disambiguation pages are not assessed (based on Wikidata claims).</p>
+					</div>
+				</div>
+			</header>
+		</div>
+
+		<div class="separator"></div>
+
+		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
+			<main id="tool_main">
+				<section class="form">
+					<form action="#results">
+						<div class="cols cols3">
+							<div class="col col1">
+								{% if lang %}
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="{{lang}}" placeholder="Placeholder text" id="lang"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">Language code -- e.g., en for English</span>
+									<input type="text" value="" placeholder="Placeholder text" id="lang"/>
+								</label>
+								{% endif %}
+							</div>
+							<div class="col col1">
+								{% if title %}
+								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+									<input type="text" value="{{title}}" placeholder="Placeholder text" id="page_title"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">Article title -- e.g., Toni Morrison</span>
+									<input type="text" value="" placeholder="Placeholder text" id="page_title"/>
+								</label>
+								{% endif %}
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" id="btnSubmit" />
+							</div>
+						</div>
+					</form>
+				</section>
+				<section id="results">
+					<div class="cols cols3">
+						<div class="col col3">
+							<section class="text" id="topic-results">
+								<!-- Empty section to hold results -->
+							</section>
+						</div>
+					</div>
+            	</section>
+			</main>
+		</section>
+	</article>
+
+	<footer id="tool_footer">
+		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<ul>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance">Meta</a></li>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
+			</ul>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); queryTopicAPI();
+		});
+
+		window.onload = function() {
+			if (document.getElementById('lang').value) {
+				queryTopicAPI();
+			}
+		}
+
+		$( function() {
+			$( "#page_title" ).autocomplete({
+				source: function( request, response ) {
+					$.ajax( {
+						url: "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php",
+						data: {
+							action: "opensearch",
+							search: request.term,
+							limit: 5,
+							namespace: 0,
+							format: "json",
+							origin: "*"
+						},
+						success: function(data) {
+							response($.map( data[1], function( item ) {
+								return {
+									label: item,
+									value: item
+								}
+							}));
+						}
+					} );
+				},
+				minLength: 2,
+				delay: 300  // milliseconds
+			} );
+		});
+
+
+	    var render_results = function(data) {
+			console.log(data)
+			$("#topic-results").empty();
+			if ("error" in data) {
+				$("#topic-results").append("<br><p>" + data["error"] + "</p>");
+			}
+			if ("results" in data) {
+				let article = data["article"];
+				$("#topic-results").append('<br><h3><a href="' + article + '">' + document.getElementById('page_title').value + '</a></h3>');
+				if ("list/disambig" in data["results"]) {
+					$("#topic-results").append("<p>Article is list or disambiguation page; no topic results.</p>");
+				} else {
+					if ("topics" in data["results"] && data["results"]["topics"].length > 0) {
+						$("#topic-results").append("<ul>");
+						data["results"]["topics"].forEach(function (t, idx) {
+							if (t["confidence"] >= 0.5) {
+								$("#topic-results").append("<li class='above-threshold'>" + t["topic"] + " (" + Math.round(t["confidence"]*100) + "%)</li>");
+							} else {
+								$("#topic-results").append("<li class='below-threshold'>" + t["topic"] + " (" + Math.round(t["confidence"]*100) + "%)</li>");
+							}
+						});
+						$("#topic-results").append("</ul>");
+					} else {
+						$("#topic-results").append("<ul><li>No topics predicted.</li></ul>");
+					}
+					
+					if ("countries" in data["results"] && data["results"]["countries"].length > 0) {
+						$("#topic-results").append("<ul>");
+						data["results"]["countries"].forEach(function (c, idx) {
+							$("#topic-results").append("<li>" + c + "</li>");
+						});
+						$("#topic-results").append("</ul>");
+					} else {
+						$("#topic-results").append("<ul><li>No countries predicted.</li></ul>");
+					}
+					
+					if ("person" in data["results"] && data["results"]["person"]["biography"]) {
+						let gender = data["results"]["person"]["gender"];
+						$("#topic-results").append("<ul>");
+						if (gender) {
+							$("#topic-results").append("<li>Gender: " + gender + "</li>");
+						} else {
+							$("#topic-results").append("<li>Gender: unkown</li>");
+						}
+						$("#topic-results").append("</ul>");
+					} else {
+						$("#topic-results").append("<ul><li>Not a biography.</li></ul>");
+					}
+					
+					if ("species" in data["results"] && data["results"]["species"]["taxon"]) {
+						let kingdom = data["results"]["species"]["kingdom"];
+						$("#topic-results").append("<ul>");
+						if (kingdom) {
+							$("#topic-results").append("<li>Kingdom: " + kingdom + "</li>");
+						} else {
+							$("#topic-results").append("<li>Species not part of animal/plant/fungus kingdoms.</li>");
+						}
+						$("#topic-results").append("</ul>");
+					} else {
+						$("#topic-results").append("<ul><li>Not a species article.</li></ul>");
+					}
+				}
+			}
+		}
+
+		var update_title = function(data) {
+			document.getElementById('page_title').value = data['query']['random'][0]['title'];
+			document.getElementById('page_title').parentNode.className = 'placeholder';
+		}
+
+
+	  	async function queryTopicAPI() {
+	  		if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
+				var randomPageQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=1&rnnamespace=0&origin=*";
+				$.ajax(randomPageQueryURL, {success: update_title.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)},
+							  async: false
+							  }
+				  );
+			}
+
+			// https://topic-model-v2.wmcloud.org/article?lang=en&title=Legionella_pneumophila
+			let queryUrl = "https://topic-model-v2.wmcloud.org/article";
+			let queryParams = new URLSearchParams({title: document.getElementById('page_title').value,
+												   lang: document.getElementById('lang').value}
+												).toString()
+			try {
+				const response = await fetch(queryUrl + "?" + queryParams, {
+					method: "GET"
+					});
+				const result = await response.json();
+				render_results(result);
+			} catch (error) {
+				console.error("Error:", error);
+			}
+	  	}
+	</script>
+
+</body>
+
+</html>
