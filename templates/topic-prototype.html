@@ -91,9 +91,14 @@
 					</form>
 				</section>
 				<section id="results">
-					<div class="cols cols3">
-						<div class="col col3">
+					<div class="cols cols2">
+						<div class="col col1">
 							<section class="text" id="topic-results">
+								<!-- Empty section to hold results -->
+							</section>
+						</div>
+						<div class="col col1">
+							<section class="text" id="former-results">
 								<!-- Empty section to hold results -->
 							</section>
 						</div>
@@ -175,16 +180,41 @@
 			} );
 		});
 
+		var render_lw_results = function(data) {
+			$("#former-results").empty();
+			if ("error" in data) {
+				$("#former-results").append("<br><p>" + data["error"] + "</p>");
+			}
+			if ("prediction" in data) {
+				let article = data["prediction"]["article"];
+				let results = data["prediction"]["results"];
+				$("#former-results").append('<br><h3><a href="https://api.wikimedia.org/wiki/Lift_Wing_API/Reference/Get_articletopic_outlink_prediction">Current LiftWing topic predictions:</a></h3>');
+			  	if (results.length > 0) {
+					$("#former-results").append("<ol>");
+					for (var cat in results) {
+						if (results[cat]["score"] >= 0.5) {
+							$("#former-results").append("<li class='above-threshold'>" + results[cat]["topic"] + " (High confidence: " + Math.round(results[cat]["score"]*100) + "%)</li>");
+						} else {
+							$("#former-results").append("<li class='below-threshold'>" + results[cat]["topic"] + " (Low confidence: " + Math.round(results[cat]["score"]*100) + "%)</li>");
+						}
+					}
+					$("#former-results").append("</ol>");
+			  	}
+			  	else {
+					$("#former-results").append("<li>No confident topics predicted.</li>");
+			  	}
+			}
+		}
+
 
 	    var render_results = function(data) {
-			console.log(data)
 			$("#topic-results").empty();
 			if ("error" in data) {
 				$("#topic-results").append("<br><p>" + data["error"] + "</p>");
 			}
 			if ("results" in data) {
 				let article = data["article"];
-				$("#topic-results").append('<br><h3><a href="' + article + '">' + document.getElementById('page_title').value + '</a></h3>');
+				$("#topic-results").append('<br><h3><a href="https://phabricator.wikimedia.org/T343241">Prototype topic predictions:</a></h3>');
 				if ("list/disambig" in data["results"]) {
 					$("#topic-results").append("<p>Article is list or disambiguation page; no topic results.</p>");
 				} else {
@@ -246,6 +276,13 @@
 			document.getElementById('page_title').parentNode.className = 'placeholder';
 		}
 
+		var generate_permalink = function() {
+			var result_url = 'https://wiki-topic.toolforge.org/topic-prototype';
+			result_url = result_url + '?lang=' + document.getElementById('lang').value;
+			result_url = result_url + '&title=' + document.getElementById('page_title').value.replaceAll(' ', '_');
+			return result_url;
+		}
+
 
 	  	async function queryTopicAPI() {
 	  		if (document.getElementById('lang').value && !document.getElementById('page_title').value) {
@@ -258,9 +295,10 @@
 			}
 
 			// https://topic-model-v2.wmcloud.org/article?lang=en&title=Legionella_pneumophila
+			let lang = document.getElementById('lang').value;
 			let queryUrl = "https://topic-model-v2.wmcloud.org/article";
 			let queryParams = new URLSearchParams({title: document.getElementById('page_title').value,
-												   lang: document.getElementById('lang').value}
+												   lang: lang}
 												).toString()
 			try {
 				const response = await fetch(queryUrl + "?" + queryParams, {
@@ -271,6 +309,28 @@
 			} catch (error) {
 				console.error("Error:", error);
 			}
+
+			let lwQueryUrl = "https://api.wikimedia.org/service/lw/inference/v1/models/outlink-topic-model:predict";
+			let lwData = {"page_title": document.getElementById('page_title').value,
+						"lang": lang,
+						"threshold": 0.15};
+			let lwHeaders = {'Api-User-Agent': 'isaacj@wikimedia.org - wiki-topic toolforge'};
+			try {
+				const response = await fetch(lwQueryUrl, {
+					method: "POST",
+					headers: lwHeaders,
+					body: JSON.stringify(lwData),
+					});
+				const result = await response.json();
+				render_lw_results(result);
+			} catch (error) {
+				console.error("Error:", error);
+			}
+
+			let article = document.getElementById('page_title').value.replaceAll(" ", "_");
+			let articleHTML = "<li>Article: " + '<a href="https://' + lang + ".wikipedia.org/wiki/" + article + '">' + lang + ":" + article + "</a></li>"
+			let permalink = "<li>Query: " + generate_permalink() + "</li>";
+			$("#results").append('<div><br><hr>Additional info:<ul>' + articleHTML + permalink + '</ul></div>');
 	  	}
 	</script>
 
