@@ -91,7 +91,12 @@
 					</form>
 				</section>
 				<section id="results">
-					<div class="cols cols2">
+					<div class="cols cols3">
+						<div class="col col1">
+							<article class="card" id="page-preview">
+								<!-- Empty section to hold article -->
+							</article>
+						</div>
 						<div class="col col1">
 							<section class="text" id="topic-results">
 								<!-- Empty section to hold results -->
@@ -179,6 +184,22 @@
 				delay: 300  // milliseconds
 			} );
 		});
+
+		var render_page_preview = function(data) {
+			$("#page-preview").empty();
+			var cardHTML = '<a href="https://' + document.getElementById('lang').value + '.wikipedia.org/wiki/' + document.getElementById('page_title').value + '">';
+			if ("thumbnail" in data) {
+				var imgSrc = data["thumbnail"]["source"];
+				cardHTML += '<div class="img"><figure><img src="' + imgSrc + '" /></figure></div>';
+			}
+			cardHTML += '<div class="texts"><h3>' + document.getElementById('page_title').value + '</h3>';
+			if ("extract_html" in data) {
+				cardHTML += data["extract_html"];
+			}
+			cardHTML += '</div><div class="more">More info. &raquo;</div></a>';
+			$("#page-preview").append(cardHTML);
+		}
+
 
 		var render_lw_results = function(data) {
 			$("#former-results").empty();
@@ -276,11 +297,11 @@
 			document.getElementById('page_title').parentNode.className = 'placeholder';
 		}
 
-		var generate_permalink = function() {
-			var result_url = 'https://wiki-topic.toolforge.org/topic-prototype';
-			result_url = result_url + '?lang=' + document.getElementById('lang').value;
-			result_url = result_url + '&title=' + document.getElementById('page_title').value.replaceAll(' ', '_');
-			return result_url;
+		var update_url = function() {
+			const url = new URL(location);
+			url.searchParams.set("lang", document.getElementById('lang').value);
+			url.searchParams.set("title", document.getElementById('page_title').value.replaceAll(' ', '_'));
+			history.pushState({}, "", url);
 		}
 
 
@@ -293,6 +314,12 @@
 							  }
 				  );
 			}
+
+			var articleExtractURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/api/rest_v1/page/summary/" + document.getElementById('page_title').value + "?redirect=true"
+			$.ajax(articleExtractURL, {success: render_page_preview.bind(this),
+							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
+							  }
+				  );
 
 			// https://topic-model-v2.wmcloud.org/article?lang=en&title=Legionella_pneumophila
 			let lang = document.getElementById('lang').value;
@@ -327,10 +354,7 @@
 				console.error("Error:", error);
 			}
 
-			let article = document.getElementById('page_title').value.replaceAll(" ", "_");
-			let articleHTML = "<li>Article: " + '<a href="https://' + lang + ".wikipedia.org/wiki/" + article + '">' + lang + ":" + article + "</a></li>"
-			let permalink = "<li>Query: " + generate_permalink() + "</li>";
-			$("#results").append('<div><br><hr>Additional info:<ul>' + articleHTML + permalink + '</ul></div>');
+			update_url();
 	  	}
 	</script>
 
