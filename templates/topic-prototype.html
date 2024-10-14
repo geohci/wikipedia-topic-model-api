@@ -213,10 +213,11 @@
 			  	if (results.length > 0) {
 					$("#former-results").append("<ol>");
 					for (var cat in results) {
+						let topic = wrap_topics(results[cat]["topic"]);
 						if (results[cat]["score"] >= 0.5) {
-							$("#former-results").append("<li class='above-threshold'>" + results[cat]["topic"] + " (High confidence: " + Math.round(results[cat]["score"]*100) + "%)</li>");
+							$("#former-results").append("<li class='above-threshold'>" + topic + " (High confidence: " + Math.round(results[cat]["score"]*100) + "%)</li>");
 						} else {
-							$("#former-results").append("<li class='below-threshold'>" + results[cat]["topic"] + " (Low confidence: " + Math.round(results[cat]["score"]*100) + "%)</li>");
+							$("#former-results").append("<li class='below-threshold'>" + topic + " (Low confidence: " + Math.round(results[cat]["score"]*100) + "%)</li>");
 						}
 					}
 					$("#former-results").append("</ol>");
@@ -225,6 +226,10 @@
 					$("#former-results").append("<li>No confident topics predicted.</li>");
 			  	}
 			}
+		}
+
+		var wrap_topics = function(topic) {
+			return topic.replaceAll("_", " ").replaceAll(".", " - ")
 		}
 
 
@@ -242,10 +247,11 @@
 					if ("topics" in data["results"] && data["results"]["topics"].length > 0) {
 						$("#topic-results").append("<ul>");
 						data["results"]["topics"].forEach(function (t, idx) {
+							let topic = wrap_topics(t["topic"]);
 							if (t["confidence"] >= 0.5) {
-								$("#topic-results").append("<li class='above-threshold'>" + t["topic"] + " (High confidence: " + Math.round(t["confidence"]*100) + "%)</li>");
+								$("#topic-results").append("<li class='above-threshold'>" + topic + " (High confidence: " + Math.round(t["confidence"]*100) + "%)</li>");
 							} else {
-								$("#topic-results").append("<li class='below-threshold'>" + t["topic"] + " (Low confidence: " + Math.round(t["confidence"]*100) + "%)</li>");
+								$("#topic-results").append("<li class='below-threshold'>" + topic + " (Low confidence: " + Math.round(t["confidence"]*100) + "%)</li>");
 							}
 						});
 						$("#topic-results").append("</ul>");
