@@ -275,7 +275,7 @@
 						if (gender) {
 							$("#topic-results").append("<li>Gender: " + gender + "</li>");
 						} else {
-							$("#topic-results").append("<li>Gender: unkown</li>");
+							$("#topic-results").append("<li>Gender: unknown</li>");
 						}
 						$("#topic-results").append("</ul>");
 					} else {
@@ -293,6 +293,16 @@
 						$("#topic-results").append("</ul>");
 					} else {
 						$("#topic-results").append("<ul><li>Not a species article.</li></ul>");
+					}
+
+					if ("time" in data["results"]) {
+						let starttime = data["results"]["time"]["start"];
+						let endtime = data["results"]["time"]["end"];
+						$("#topic-results").append("<ul>");
+						$("#topic-results").append("<li>Time: " + starttime + " - " + endtime + "</li>");
+						$("#topic-results").append("</ul>");
+					} else {
+						$("#topic-results").append("<ul><li>No time-related data found.</li></ul>");
 					}
 				}
 			}
