@@ -244,10 +244,12 @@
 				if ("list/disambig" in data["results"]) {
 					$("#topic-results").append("<p>Article is list or disambiguation page; no topic results.</p>");
 				} else {
+					let model_topics = new Set();
 					if ("topics" in data["results"] && data["results"]["topics"].length > 0) {
 						$("#topic-results").append("<ul>");
 						data["results"]["topics"].forEach(function (t, idx) {
 							let topic = wrap_topics(t["topic"]);
+							model_topics.add(topic);
 							if (t["confidence"] >= 0.5) {
 								$("#topic-results").append("<li class='above-threshold'>" + topic + " (High confidence: " + Math.round(t["confidence"]*100) + "%)</li>");
 							} else {
@@ -276,6 +278,18 @@
 							$("#topic-results").append("<li>Gender: " + gender + "</li>");
 						} else {
 							$("#topic-results").append("<li>Gender: unknown</li>");
+						}
+						let occ_topics = data["results"]["person"]["topics"];
+						if (occ_topics) {
+							occ_topics.forEach(function (t, idx) {
+								let topic = wrap_topics(t["topic"]);
+								// model_topics.add(topic);
+								if (t["weight"] >= 0.5) {
+									$("#topic-results").append("<li class='above-threshold'>Occupation topic: " + topic + " (High confidence: " + Math.round(t["weight"]*100) + "%)</li>");
+								} else {
+									$("#topic-results").append("<li class='below-threshold'>Occupation topic: " + topic + " (Low confidence: " + Math.round(t["weight"]*100) + "%)</li>");
+								}
+							});
 						}
 						$("#topic-results").append("</ul>");
 					} else {
