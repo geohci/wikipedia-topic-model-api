@@ -362,11 +362,9 @@ def get_similar_articles(title, lang, limit=20):
     qid = result['query']['pages'][0].get('pageprops', {}).get('wikibase_item')
     if not qid:
         return None
-    print(qid)
     article_ios = get_p31(qid)
     if not article_ios:
         return None
-    print(article_ios)
     base_url = f"https://{lang}.wikipedia.org/w/api.php"
     params = {
             "action": "query",
@@ -395,13 +393,10 @@ def get_similar_articles(title, lang, limit=20):
                         pid = link['pageid']
                         pids_to_keep.add(pid)
     except Exception:
-        traceback.print_exc()
         return None
-    print(pids_to_keep)
     return pids_to_keep
-    
-import traceback
-    
+
+
 def get_p31(qid):
     # https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=Q2479913&property=P31&format=json&formatversion=2&props
     base_url = "https://www.wikidata.org/w/api.php"
@@ -421,7 +416,6 @@ def get_p31(qid):
                 instance_ofs.add(io)
         return instance_ofs
     except Exception:
-        traceback.print_exc()
         return instance_ofs
 
 
