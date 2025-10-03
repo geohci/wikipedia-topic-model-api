@@ -140,7 +140,6 @@ def wikiproject_topic():
             main_subjects.append(claim_value)
 
     if main_subjects:
-        print(main_subjects)
         # https://www.wikidata.org/w/api.php?action=wbgetentities&ids=Q385967&props=sitelinks&format=json&formatversion=2
         sitelinks_params = {"action":"wbgetentities",
                             "ids":"|".join(main_subjects),
@@ -179,7 +178,6 @@ def wikiproject_topic():
                     pages.append((lang, title))
 
         if pages:
-            print(pages)
             inference_url = 'https://api.wikimedia.org/service/lw/inference/v1/models/outlink-topic-model:predict'
             headers = {
                     'Api-User-Agent': app.config['CUSTOM_UA'],
@@ -191,7 +189,6 @@ def wikiproject_topic():
                 data = {"page_title": title.replace(" ", "_"), "lang": lang, "threshold":0.0}
                 try:
                     response = requests.post(inference_url, headers=headers, data=json.dumps(data)).json()
-                    print(response)
                     predictions = response.get("prediction", {}).get("results", [])
                     if predictions:
                         num_predictions += 1
@@ -233,10 +230,15 @@ def recommend_things():
     if 'rec_type' in request.args:
         rec_type = request.args['rec_type']
 
+    match_io = False
     pages_to_check = 10
+    if 'strict' in request.args:
+        match_io = True
+        pages_to_check = 20
+
 
     if lang and title and rec_type:
-        # https://en.wikipedia.org/w/api.php?action=query&generator=search&format=json&gsrnamespace=0&gsrwhat=title&gsrsearch=morelike:Wayne_McDaniel&prop=categories&clprop=hidden&cllimit=max
+        # https://en.wikipedia.org/w/api.php?action=query&generator=search&format=json&gsrnamespace=0&gsrwhat=text&gsrsearch=morelike:Wayne_McDaniel&prop=categories&clprop=hidden&cllimit=max
         base_url = f"https://{lang}.wikipedia.org/w/api.php"
         params = {"action":"query",
                   "generator":"search",
@@ -262,13 +264,19 @@ def recommend_things():
             params["rvprop"] = "content"
             params["rvslots"] = "main"
             generator_fn = page_to_sections
-        
+
+        pids_to_keep = get_similar_articles(title, lang, limit=20) if match_io else None
 
         response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']})
         entity_counts = {}
+        pages_checked = []
         for page in response.json().get("query", {}).get("pages", []):
-            for entity in generator_fn(page):
-                entity_counts[entity] = entity_counts.get(entity, 0) + 1
+            if not pids_to_keep or page['pageid'] in pids_to_keep:
+                pages_checked.append(page['title'])
+                for entity in generator_fn(page):
+                    entity_counts[entity] = entity_counts.get(entity, 0) + 1
+
+        entity_counts = {e:count for e,count in entity_counts.items() if count > 1}
 
         for k in ['generator', 'gsrnamespace', 'gsrwhat', 'gsrsearch', 'gsrlimit']:
             params.pop(k)
@@ -277,7 +285,6 @@ def recommend_things():
             response = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']}).json()
             groundtruth = set([e for e in generator_fn(response["query"]["pages"][0])])
         except Exception:
-            print("No groundtruth.")
             groundtruth = set()
             
         if rec_type == 'categories':
@@ -295,7 +302,7 @@ def recommend_things():
             sort_key = 'tf-idf'
         elif rec_type == "templates":
             # TODO: this takes forever because so many templates and each call can be kinda slow -- trim maybe somehow?
-            overall_usage = template_idf(list(entity_counts.keys()), lang)
+            overall_usage = template_idf([t for t in entity_counts if entity_counts[t] > 1], lang)
             # https://en.wikipedia.org/w/api.php?action=query&meta=siteinfo&siprop=statistics&format=json&formatversion=2
             base_url = f"https://{lang}.wikipedia.org/w/api.php"
             params = {"action":"query",
@@ -316,7 +323,7 @@ def recommend_things():
         recommendations = []
         for e in sorted(entity_counts, key=entity_counts.get, reverse=True):
             term_count = entity_counts[e]
-            tf = term_count / pages_to_check
+            tf = term_count / len(pages_checked)
             doc_count = overall_usage.get(e)
             try:
                 document_frequency = doc_count / total_page_count
@@ -327,12 +334,97 @@ def recommend_things():
 
         recommendations = sorted(recommendations, key=lambda x: x[sort_key], reverse=True)
 
-        result = {'lang':lang, 'title':title, 'rec-type':rec_type, 'pages-checked':pages_to_check,
+        result = {'lang':lang, 'title':title, 'rec-type':rec_type, 'pages-checked':pages_checked,
                   'recommendations': recommendations}
 
         return jsonify(result)
     else:
         return jsonify({"error": f"missing lang, title, or rec_type (categories, templates, sections)"})
+    
+def get_similar_articles(title, lang, limit=20):
+    """Gather set of up to `limit` links for an article."""
+
+    base_url = f"https://{lang}.wikipedia.org/w/api.php"
+    params = {
+        'action': "query",
+        'prop': "pageprops",
+        'ppprop': 'wikibase_item',
+        'redirects': '',
+        'titles': title,
+        'format': 'json',
+        'formatversion': 2 
+    }
+    result = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']}).json()
+        
+    if 'missing' in result['query']['pages'][0]:
+        return None
+    
+    qid = result['query']['pages'][0].get('pageprops', {}).get('wikibase_item')
+    if not qid:
+        return None
+    print(qid)
+    article_ios = get_p31(qid)
+    if not article_ios:
+        return None
+    print(article_ios)
+    base_url = f"https://{lang}.wikipedia.org/w/api.php"
+    params = {
+            "action": "query",
+            "generator": "search",
+            "titles": title,
+            "redirects": '',
+            "prop": "pageprops",
+            "ppprop": "wikibase_item",
+            "gsrwhat": "text",
+            "gsrnamespace": 0,
+            "gsrsearch": f"morelike:{title}",
+            "gsrlimit": limit,
+            "format": 'json',
+            "formatversion": 2
+    }
+    result = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']}).json()
+
+    pids_to_keep = set()
+    try:
+        for link in result['query']['pages']:
+            if link['ns'] == 0 and 'missing' not in link:  # namespace 0 and not a red link
+                qid = link.get('pageprops', {}).get('wikibase_item')
+                if qid:
+                    morelike_ios = get_p31(qid)
+                    if article_ios.intersection(morelike_ios):
+                        pid = link['pageid']
+                        pids_to_keep.add(pid)
+    except Exception:
+        traceback.print_exc()
+        return None
+    print(pids_to_keep)
+    return pids_to_keep
+    
+import traceback
+    
+def get_p31(qid):
+    # https://www.wikidata.org/w/api.php?action=wbgetclaims&entity=Q2479913&property=P31&format=json&formatversion=2&props
+    base_url = "https://www.wikidata.org/w/api.php"
+    params = {
+        'action': "wbgetclaims",
+        'entity': qid,
+        'property': 'P31',
+        'format': 'json',
+        'formatversion': 2
+    }
+    result = requests.get(base_url, params=params, headers={'User-Agent': app.config['CUSTOM_UA']}).json()
+    instance_ofs = set()
+    try:
+        for claim in result['claims']['P31']:
+            io = claim['mainsnak']['datavalue']['value']['id']
+            if io:
+                instance_ofs.add(io)
+        return instance_ofs
+    except Exception:
+        traceback.print_exc()
+        return instance_ofs
+
+
     
 def page_to_categories(page):
     for cat in page.get('categories', []):
