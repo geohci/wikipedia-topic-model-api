@@ -210,7 +210,7 @@
                         "Api-User-Agent": "wiki-topic.toolforge.org (isaac)"
                     });
 
-                    let parameters = {"rev_id": revid, "lang": document.getElementById('lang').value};
+                    let parameters = {"rev_id": revid, "lang": document.getElementById('lang').value, "extended_output": "true"};
 
                     fetch(inferenceUrl, {
                         method: "POST",
