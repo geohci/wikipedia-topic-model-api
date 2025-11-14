@@ -149,32 +149,26 @@
 	    var render_results = function(data) {
 			$("#quality-results").empty();
 			$("#quality-features").empty();
-			if ("Error" in data) {
-				$("#quality-results").append("<br><p>Error: " + data["Error"] + "</p>");
-			}
-			else {
-				$("#quality-results").append('<br><h3><a href="https://' + data["lang"] + '.wikipedia.org/wiki/' + data["title"] + '">' + data["lang"] + ":" + data["title"] + '</a></h3>');
-			  	if ("quality" in data) {
-			  	    $("#quality-results").append("<h4>Quality: Score (Class)</h4>");
-			  	    if (data["quality"] <= 0.42) {
-			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Stub)</li>");
-			  	    } else if (data["quality"] <= 0.56) {
-			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Start)</li>");
-			  	    } else if (data["quality"] <= 0.73) {
-                        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (C-class)</li>");
-			  	    } else if (data["quality"] <= 0.85) {
-			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (B-class)</li>");
-			  	    } else if (data["quality"] <= 0.93) {
-			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Good)</li>");
-			  	    } else if (data["quality"] <= 1) {
-			  	        $("#quality-results").append("<li>" + data["quality"].toFixed(3) + " (Featured)</li>");
-			  	    }
-			  	    render_features(data);
-			  	}
-			  	else {
-					$("#quality-results").append("<li>No quality score provided.</li>");
-			  	}
-			}
+			if ("score" in data) {
+				$("#quality-results").append('<br><h3><a href="https://' + document.getElementById('lang').value + '.wikipedia.org/wiki/' + document.getElementById('page_title').value + '">' + document.getElementById('lang').value + ":" + document.getElementById('page_title').value + '</a></h3>');
+                $("#quality-results").append("<h4>Quality: Score (Class)</h4>");
+                if (data["score"] <= 0.42) {
+                    $("#quality-results").append("<li>" + data["score"].toFixed(3) + " (~Stub)</li>");
+                } else if (data["score"] <= 0.56) {
+                    $("#quality-results").append("<li>" + data["score"].toFixed(3) + " (~Start)</li>");
+                } else if (data["score"] <= 0.73) {
+                    $("#quality-results").append("<li>" + data["score"].toFixed(3) + " (~C-class)</li>");
+                } else if (data["score"] <= 0.85) {
+                    $("#quality-results").append("<li>" + data["score"].toFixed(3) + " (~B-class)</li>");
+                } else if (data["score"] <= 0.93) {
+                    $("#quality-results").append("<li>" + data["score"].toFixed(3) + " (~Good)</li>");
+                } else if (data["score"] <= 1) {
+                    $("#quality-results").append("<li>" + data["score"].toFixed(3) + " (~Featured)</li>");
+                }
+                render_features(data);
+            } else {
+                $("#quality-results").append("<li>No quality score provided.</li>");
+            }
 		}
 
 		var render_features = function(data) {
@@ -202,11 +196,31 @@
 				  );
 			}
 
-	  	    var queryUrl = "https://misalignment.wmcloud.org/api/v1/quality-article-features?lang=" + document.getElementById('lang').value + "&title=" + document.getElementById('page_title').value;
-			$.ajax(queryUrl, {success: render_results.bind(this),
-							  error: function(jqxmlhr, status, error){console.log(status + ": " + error)}
-							  }
-				  );
+            const revidQueryURL = "https://" + document.getElementById('lang').value + ".wikipedia.org/w/api.php?action=query&format=json&prop=info&formatversion=2&titles=" + document.getElementById('page_title').value + "&origin=*";
+			fetch(revidQueryURL, {
+                method: "GET",
+            })
+            .then(response => response.json())
+            .then(data => {
+                let revid = data["query"]["pages"][0]["lastrevid"];
+                if (revid > 0) {
+                    const inferenceUrl = "https://api.wikimedia.org/service/lw/inference/v1/models/articlequality:predict";
+                    let headers = new Headers({
+                        "Content-Type": "application/json",
+                        "Api-User-Agent": "wiki-topic.toolforge.org (isaac)"
+                    });
+
+                    let parameters = {"rev_id": revid, "lang": document.getElementById('lang').value};
+
+                    fetch(inferenceUrl, {
+                        method: "POST",
+                        headers: headers,
+                        body: JSON.stringify(parameters)
+                    })
+                    .then(response => response.json())
+                    .then(inferenceData => render_results(inferenceData));
+                }
+            });            
 	  	}
 	</script>
 
