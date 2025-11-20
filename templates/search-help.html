@@ -192,6 +192,14 @@
 						g_results += "</ul>";
 						$("#wikipedia-search").append(g_results);
 					}
+					if ("teahouse" in ws) {
+						let t_results = "<h3>Teahouse</h3><ul>";
+						ws["teahouse"].forEach(function (r, idx) {
+							t_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						t_results += "</ul>";
+						$("#wikipedia-search").append(t_results);
+					}
 				}
 			}
 		}
