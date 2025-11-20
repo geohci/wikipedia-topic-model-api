@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<title>How do I...? for Editors</title>
+	<link rel="shortcut icon" href="./static/favicon.ico">
+	<meta name="viewport" content="width = device-width, initial-scale=1, user-scalable = no" />
+	<link href="https://tools-static.wmflabs.org/fontcdn/css?family=Merriweather:400,400italic,700,700italic&subset=latin" rel="stylesheet" type="text/css">
+	<link href='https://tools-static.wmflabs.org/fontcdn/css?family=Lato:400,400italic,700,700italic&subset=latin' rel='stylesheet' type='text/css'>
+	<link href="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css" rel="stylesheet" type="text/css">
+	<link rel="stylesheet" href="./static/style.css" />
+
+</head>
+
+<body>
+	<script type="text/javascript">
+		var body = document.body;
+		body.classList.add('js');
+	</script>
+
+	<div id="origin_bar">
+		<div class="boxwidth--1-1 padded--left padded--right">
+			<a href="https://research.wikimedia.org/" class="origin_title"><img src="./static/Wikimedia-Foundation-logo.svg" alt="Wikimedia Foundation logo" />Wikimedia Research</a>
+		</div>
+	</div>
+
+	<article id="tool_holder">
+		<div id="tool_header--holder" class="boxwidth--1-1 padded--left padded--right">
+			<header id="tool_header">
+				<h1>How do I...? for Editors</h1>
+				<div class="meta">
+					<div class="disclaimer note">
+						<p>No guarantees are made that this tool will be maintained.</p>
+						<p>This is an experimental tool hosted on <a href="https://wikitech.wikimedia.org/wiki/Portal:Toolforge">Toolforge</a>. No additional personal data is collected by this tool per the Cloud Services
+							<a href="https://wikitech.wikimedia.org/wiki/Wikitech:Cloud_Services_Terms_of_use" target="_blank" rel="noopener">Terms of Use</a>.</p>
+					</div>
+					<div class="description padded--right">
+						<p>This tool is a new prototype for searching the Help and Policy namespaces on (English) Wikipedia.</p>
+						<p>It compares the results from existing Search with natural-language search of three different corpora:</p>
+						<p>-- Help: all pages in the <a href="https://en.wikipedia.org/wiki/Wikipedia:Help_namespace">Help namespace</a>.</p>
+						<p>-- Question bank: all subpages from the <a href="https://en.wikipedia.org/wiki/Wikipedia:Help_desk">Help Desk</a>, <a href="https://en.wikipedia.org/wiki/Wikipedia:Teahouse">Teahouse</a>, and <a href="https://en.wikipedia.org/wiki/Wikipedia:FAQ">FAQs</a>.</p>
+						<p>-- Policies/Guidelines: all <a href="https://en.wikipedia.org/wiki/Category:Wikipedia_policies">Policies</a>, <a href="https://en.wikipedia.org/wiki/Category:Wikipedia_guidelines">Guidelines</a>, and <a href="https://en.wikipedia.org/wiki/Category:Wikipedia_Manual_of_Style">Manual of Style</a> pages.</p>
+					</div>
+				</div>
+			</header>
+		</div>
+
+		<div class="separator"></div>
+
+		<section id="topic" class="boxwidth--1-1 padded--left padded--right">
+			<main id="tool_main">
+				<section class="form">
+					<form action="#results">
+						<div class="cols cols4">
+							<div class="col col3">
+								{% if query %}
+								<label class="placeholder"><span class="field_name">What's your question?</span>
+									<input type="text" value="{{query}}" placeholder="Placeholder text" id="query"/>
+								</label>
+								{% else %}
+								<label class="placeholder"><span class="field_name">What's your question?</span>
+									<input type="text" value="" placeholder="Placeholder text" id="query"/>
+								</label>
+								{% endif %}
+							</div>
+							<div class="col col1">
+								<span class="field_name"></span>
+								<input type="submit" value="Submit" id="btnSubmit" />
+							</div>
+						</div>
+					</form>
+				</section>
+				<section id="results">
+					<div class="cols cols2">
+						<div class="col col1">
+							<article class="text" id="natural-language">
+								<!-- Empty section to hold article -->
+							</article>
+						</div>
+						<div class="col col1">
+							<section class="text" id="wikipedia-search">
+								<!-- Empty section to hold results -->
+							</section>
+						</div>
+					</div>
+            	</section>
+			</main>
+		</section>
+	</article>
+
+	<footer id="tool_footer">
+		<div id="tool_footer-in" class="boxwidth--1-1 padded--left padded--right">
+			<p>Experimental tool developed by <span class="tool-author"><a href="https://meta.wikipedia.org/wiki/User:Isaac_(WMF)">Isaac (WMF)</a> as part of <a href="https://research.wikimedia.org/">Wikimedia Research</a></span>.</p>
+			<ul>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api">View Source</a></li>
+				<li><a href="https://meta.wikimedia.org/wiki/Research:Language-Agnostic_Topic_Classification/Outlink_model_performance">Meta</a></li>
+				<li><a href="https://github.com/geohci/wikipedia-topic-model-api#license">License</a></li>
+			</ul>
+		</div>
+	</footer>
+
+
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jquery/3.7.0/jquery.min.js"></script>
+	<script type="text/javascript" src="https://tools-static.wmflabs.org/cdnjs/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('form label.placeholder').each(function() {
+				if (!$('input, textarea, select', this).val()) {
+	 				$(this).addClass('off');
+				}
+				$(this).on('focusin', function() {
+					$(this).removeClass('off');
+				});
+				$(this).on('focusout', function() {
+					if (!$('input, textarea, select', this).val()) {
+						$(this).addClass('off');
+					}
+				});
+				$('*[placeholder]', this).attr('placeholder', '');
+			});
+		});
+	</script>
+
+	<script type="text/javascript">
+		$('#btnSubmit').click(function (e) {
+		   e.preventDefault(); querySearchAPI();
+		});
+
+		window.onload = function() {
+			if (document.getElementById('query').value) {
+				querySearchAPI();
+			}
+		}
+
+	    var render_results = function(data) {
+			$("#natural-language").empty();
+			$("#wikipedia-search").empty();
+			if ("results" in data) {
+				if ("natural-language" in data["results"]) {
+					$("#natural-language").append("<h2>Natural-language Search</h2>");
+					let nl = data["results"]["natural-language"];
+					if ("help" in nl) {
+						let help_results = "<h3>Help</h3><ul>";
+						nl["help"].forEach(function (r, idx) {
+							help_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						help_results += "</ul><br>";
+						$("#natural-language").append(help_results);
+					}
+					if ("question-bank" in nl) {
+						let qb_results = "<h3>Question banks</h3><ul>";
+						nl["question-bank"].forEach(function (r, idx) {
+							qb_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						qb_results += "</ul><br>";
+						$("#natural-language").append(qb_results);
+					}
+					if ("policy-guideline" in nl) {
+						let pg_results = "<h3>Policies+Guidelines</h3><ul>";
+						nl["question-bank"].forEach(function (r, idx) {
+							pg_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						pg_results += "</ul>";
+						$("#natural-language").append(pg_results);
+					}
+				}
+				if ("wikipedia-search" in data["results"]) {
+					$("#wikipedia-search").append("<h2>Standard Keyword Search</h2>");
+					let ws = data["results"]["wikipedia-search"];
+					if ("all-help-policy" in ws) {
+						let all_results = "<h3>All Wikipedia (ns4) + Policy (ns12)</h3><ul>";
+						ws["all-help-policy"].forEach(function (r, idx) {
+							all_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						all_results += "</ul><br>";
+						$("#wikipedia-search").append(all_results);
+					}
+					if ("policies" in ws) {
+						let p_results = "<h3>Policies</h3><ul>";
+						ws["policies"].forEach(function (r, idx) {
+							p_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						p_results += "</ul><br>";
+						$("#wikipedia-search").append(p_results);
+					}
+					if ("guidelines" in ws) {
+						let g_results = "<h3>Guidelines</h3><ul>";
+						ws["guidelines"].forEach(function (r, idx) {
+							g_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						g_results += "</ul>";
+						$("#wikipedia-search").append(g_results);
+					}
+				}
+			}
+		}
+
+		var update_url = function() {
+			const url = new URL(location);
+			url.searchParams.set("query", document.getElementById('query').value);
+			history.pushState({}, "", url);
+		}
+
+
+	  	async function querySearchAPI() {
+			let baseUrl = "https://mentorship-search.wmcloud.org/search/";
+			let queryParams = new URLSearchParams({query: document.getElementById('query').value,
+												   k: 5}
+												).toString()
+			try {
+				const response = await fetch(baseUrl + "?" + queryParams, {
+					method: "GET"
+					});
+				const result = await response.json();
+				render_results(result);
+			} catch (error) {
+				console.error("Error:", error);
+			}
+			update_url();
+	  	}
+	</script>
+
+</body>
+
+</html>

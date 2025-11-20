@@ -1,4 +1,3 @@
-# Many thanks to: https://wikitech.wikimedia.org/wiki/Help:Toolforge/My_first_Flask_OAuth_tool
 import json
 import math
 import os
@@ -32,6 +31,13 @@ CORS(app)
 def index():
     lang, title, qid = validate_api_args()
     return render_template('index.html', lang=lang, title=title, qid=qid)
+
+@app.route('/search-help')
+def search_help():
+    query = None
+    if 'query' in request.args:
+        query = request.args['query']
+    return render_template('search-help.html', query=query)
 
 @app.route('/topic')
 def topic():
@@ -212,7 +218,6 @@ def wikiproject_topic():
     
     else:
         return jsonify({"error": f"no main subjects for https://www.wikidata.org/wiki/{qid}#P921"})
-    
 
 @app.route('/maybe-add-this')
 def recommend_things():
@@ -341,7 +346,7 @@ def recommend_things():
     else:
         return jsonify({"error": f"missing lang, title, or rec_type (categories, templates, sections)"})
     
-def get_similar_articles(title, lang, limit=20):
+def get_similar_articles(title, lang, limit=20, pid=True):
     """Gather set of up to `limit` links for an article."""
 
     base_url = f"https://{lang}.wikipedia.org/w/api.php"
@@ -369,7 +374,6 @@ def get_similar_articles(title, lang, limit=20):
     params = {
             "action": "query",
             "generator": "search",
-            "titles": title,
             "redirects": '',
             "prop": "pageprops",
             "ppprop": "wikibase_item",
@@ -390,8 +394,12 @@ def get_similar_articles(title, lang, limit=20):
                 if qid:
                     morelike_ios = get_p31(qid)
                     if article_ios.intersection(morelike_ios):
-                        pid = link['pageid']
-                        pids_to_keep.add(pid)
+                        if pid:
+                            pid = link['pageid']
+                            pids_to_keep.add(pid)
+                        else:
+                            title = link['title']
+                            pids_to_keep.add(title)
     except Exception:
         return None
     return pids_to_keep
