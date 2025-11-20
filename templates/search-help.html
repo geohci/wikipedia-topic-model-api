@@ -176,6 +176,14 @@
 						all_results += "</ul><br>";
 						$("#wikipedia-search").append(all_results);
 					}
+					if ("teahouse" in ws) {
+						let t_results = "<h3>Teahouse</h3><ul>";
+						ws["teahouse"].forEach(function (r, idx) {
+							t_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
+						})
+						t_results += "</ul>";
+						$("#wikipedia-search").append(t_results);
+					}
 					if ("policies" in ws) {
 						let p_results = "<h3>Policies</h3><ul>";
 						ws["policies"].forEach(function (r, idx) {
@@ -191,14 +199,6 @@
 						})
 						g_results += "</ul>";
 						$("#wikipedia-search").append(g_results);
-					}
-					if ("teahouse" in ws) {
-						let t_results = "<h3>Teahouse</h3><ul>";
-						ws["teahouse"].forEach(function (r, idx) {
-							t_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
-						})
-						t_results += "</ul>";
-						$("#wikipedia-search").append(t_results);
 					}
 				}
 			}
