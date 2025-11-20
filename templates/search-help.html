@@ -158,7 +158,7 @@
 					}
 					if ("policy-guideline" in nl) {
 						let pg_results = "<h3>Policies+Guidelines</h3><ul>";
-						nl["question-bank"].forEach(function (r, idx) {
+						nl["policy-guideline"].forEach(function (r, idx) {
 							pg_results += '<li><a href="https://en.wikipedia.org/wiki/' + r["title"] + '">' + r["title"].replaceAll("_", " ") + "</li>";
 						})
 						pg_results += "</ul>";
